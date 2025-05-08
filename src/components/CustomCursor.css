@@ -1,0 +1,43 @@
+:root {
+    --color-light-blue: #00bfff;
+  }
+  
+  .cursor-inner {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-light-blue);
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9999;
+    pointer-events: none;
+    transition: width 0.2s, height 0.2s;
+  }
+  
+  .cursor-outer {
+    width: 35px;
+    height: 35px;
+    border: 2px solid #fff;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: 9998;
+    pointer-events: none;
+    transition: width 0.2s, height 0.2s;
+  }
+  
+  .cursor-inner.hover {
+    width: 25px;
+    height: 25px;
+    mix-blend-mode: difference;
+  }
+  
+  .cursor-outer.hover {
+    width: 50px;
+    height: 50px;
+  }
+  
