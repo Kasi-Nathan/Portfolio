@@ -54,7 +54,7 @@ function Home2() {
               </i>
               <br />
               <br />
-              I enjoy experimenting and trying out new tools to expand my skillset.  <b className="purple">Node.js</b> and
+              I enjoy experimenting and trying out new tools to expand my skillset. Along the way, I’ve picked up  <b className="purple">Node.js</b> and
               <i>
                 <b className="purple">
                   {" "}
