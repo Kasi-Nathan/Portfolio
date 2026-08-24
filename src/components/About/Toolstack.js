@@ -3,33 +3,24 @@ import { Col, Row } from "react-bootstrap";
 import {
   SiVisualstudiocode,
   SiPostman,
-  SiSlack,
   SiVercel,
   SiWindows,
   SiVite
 } from "react-icons/si";
 
 function Toolstack() {
+  const tools = [[<SiWindows />, "Windows"], [<SiVisualstudiocode />, "VS Code"], [<SiPostman />, "Postman"], [<SiVercel />, "Vercel"], [<SiVite />, "Vite"]];
   return (
-    <Row style={{ justifyContent: "center", paddingBottom: "50px" }}>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiWindows />
-        <span className="tooltip">Windows</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiVisualstudiocode />
-        <span className="tooltip">VScode</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiPostman />
-        <span className="tooltip">Postman</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiVercel /> <span className="tooltip">Versel</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiVite /> <span className="tooltip">Vite</span>
-      </Col>
+    <Row className="about-tech-grid about-tool-grid">
+      {tools.map(([icon, name]) => (
+        <Col xs={6} sm={4} md={3} lg={2} key={name}>
+          <div className="about-tech-card hover-target" tabIndex="0">
+            <span className="about-tech-icon">{icon}</span>
+            <h3>{name}</h3>
+            <span className="about-tech-accent" aria-hidden="true" />
+          </div>
+        </Col>
+      ))}
     </Row>
   );
 }

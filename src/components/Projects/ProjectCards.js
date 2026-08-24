@@ -1,52 +1,61 @@
 import React from "react";
-import { Link } from "react-router-dom";  // Import Link from react-router-dom
+import { Link } from "react-router-dom";
 import Card from "react-bootstrap/Card";
 import Button from "react-bootstrap/Button";
 import { CgWebsite } from "react-icons/cg";
 import { BsGithub } from "react-icons/bs";
 
 function ProjectCards(props) {
+  const cardClassName = [
+    "project-card-view",
+    props.priority ? "project-card-priority" : "",
+    props.secondary ? "project-card-secondary" : "",
+  ].filter(Boolean).join(" ");
+
   return (
-    <Card className="project-card-view">
-      <Card.Img variant="top" src={props.imgPath} alt="card-img" />
+    <Card className={`${cardClassName} hover-target`}>
+      <div className="project-image-wrap">
+        <Card.Img variant="top" src={props.imgPath} alt={props.title} />
+        {props.priority && <span className="project-featured-label">Featured project</span>}
+      </div>
       <Card.Body>
         <Card.Title>{props.title}</Card.Title>
-        <Card.Text style={{ textAlign: "justify" }}>
-          {props.description}
-        </Card.Text>
-
-        {/* Conditional rendering for GitHub button */}
-        {props.ghLink && (
-          <Button variant="primary" href={props.ghLink} target="_blank">
-            <BsGithub /> &nbsp;
-            {props.isBlog ? "Blog" : "GitHub"}
-          </Button>
+        {props.summary && <p className="project-summary">{props.summary}</p>}
+        {props.techStack && (
+          <div className="project-meta-block">
+            <span className="project-meta-label">Tech Stack</span>
+            <p className="project-meta-value">{props.techStack}</p>
+          </div>
         )}
-        {"\n"}
-        {"\n"}
+        <details className="project-details">
+          <summary>Read case study</summary>
+          <Card.Text className="project-description-block">
+            {props.description}
+          </Card.Text>
+        </details>
 
-        {/* Conditional rendering for Demo button */}
-        {!props.isBlog && props.demoLink && (
-          <Button
-            variant="primary"
-            href={props.demoLink}
-            target="_blank"
-            style={{ marginLeft: "10px" }}
-          >
-            <CgWebsite /> &nbsp;
-            {"Demo"}
-          </Button>
-        )}
-
-        {/* New Button to Redirect to Image Page */}
-        {props.imageLink && (
-          <Link to={props.imageLink}>
-            <Button variant="primary" style={{ marginLeft: "10px" }}>
-              <CgWebsite /> &nbsp;
-              View Image
+        <div className="project-actions">
+          {props.ghLink && (
+            <Button variant="primary" href={props.ghLink} target="_blank" rel="noreferrer" aria-label={`Open ${props.title} ${props.isBlog ? "blog" : "GitHub repository"}`}>
+              <BsGithub /> &nbsp;
+              {props.isBlog ? "Blog" : "GitHub"}
             </Button>
-          </Link>
-        )}
+          )}
+
+          {!props.isBlog && props.demoLink && (
+            <Button variant="primary" href={props.demoLink} target="_blank" rel="noreferrer" aria-label={`Open ${props.title} live demo`}>
+              <CgWebsite /> &nbsp;
+              Live Demo
+            </Button>
+          )}
+
+          {props.imageLink && (
+            <Button as={Link} to={props.imageLink} variant="primary" aria-label={`Open ${props.title} gallery`}>
+              <CgWebsite /> &nbsp;
+              View Gallery
+            </Button>
+          )}
+        </div>
       </Card.Body>
     </Card>
   );

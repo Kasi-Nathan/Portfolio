@@ -1,40 +1,31 @@
 import React from "react";
-import Card from "react-bootstrap/Card";
-import { Container, row, column } from "react-bootstrap";
-import { ImPointRight } from "react-icons/im";
+import { AiOutlineCode, AiOutlineExperiment, AiOutlineBulb } from "react-icons/ai";
+
+const interests = [
+  { icon: <AiOutlineCode />, title: "Modern web development", text: "Clear, responsive interfaces built around real user needs." },
+  { icon: <AiOutlineExperiment />, title: "AI and applied ML", text: "Intelligent features that support decisions and useful workflows." },
+  { icon: <AiOutlineBulb />, title: "Product thinking", text: "Thoughtful systems where implementation and experience reinforce each other." },
+];
 
 function AboutCard() {
   return (
-          <Card className="quote-card-view">
-            <Card.Body>
-              <blockquote className="blockquote mb-0">
-                <p style={{ textAlign: "justify" }} className="quote-paragraph">
-                  Hi, I am <span className="purple">Kasi Nathan Murugan </span><br/>
-                  I am a junior software developer from <span className="purple">Tenkasi, Tamil Nadu, India. </span>
-                  {/* <br /> */}
-                 
-                  {/* <br /> */}
-                  I completed my Bachelor's in  Information Technology at <span className="purple"> Sri krishna College of Technology, Coimbatore.</span> Beyond coding,  I enjoy:
-                </p>
-                <ul>
-                  <li className="about-activity" >
-                    <p className="lists"><ImPointRight /> Travelling</p>
-                  </li>
-                  <li className="about-activity" >
-                    <p className="lists"><ImPointRight /> Cooking</p>
-                  </li>
-                  <li className="about-activity" >
-                  <p className="lists"><ImPointRight /> Playing Games</p>
-                  </li>
-                </ul>
-
-                <p style={{ color: "rgb(155 126 172)" }}>
-                  "Keep grinding until you make it"{" "}
-                </p>
-                <footer className="blockquote-footer">Kasi Nathan</footer>
-              </blockquote>
-            </Card.Body>
-          </Card>
+    <div className="about-story-body">
+      <p>
+        I’m <strong>Kasi Nathan Murugan</strong>, a Master’s student in Philosophy &amp; Computer Science at the University of Bayreuth, with a B.Tech in Information Technology. My interests span web development, AI-assisted systems, machine learning, and user-centered software.
+      </p>
+      <p>
+        I enjoy building practical tools with clear interfaces and thoughtful interactions—especially projects that pair strong technical implementation with a meaningful user experience.
+      </p>
+      <div className="about-interest-list">
+        {interests.map((interest) => (
+          <article className="about-interest" key={interest.title}>
+            <span aria-hidden="true">{interest.icon}</span>
+            <div><h3>{interest.title}</h3><p>{interest.text}</p></div>
+          </article>
+        ))}
+      </div>
+      <p className="about-personal-note">Away from the screen, I enjoy travelling, cooking, and following ideas into unfamiliar territory.</p>
+    </div>
   );
 }
 

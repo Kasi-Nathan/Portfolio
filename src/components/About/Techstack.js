@@ -12,64 +12,30 @@ import {
   DiMysql,
 } from "react-icons/di";
 import {
-  SiRedis,
-  SiFirebase,
   SiNextdotjs,
-  SiSolidity,
   SiPostgresql,
   SiTypescript,
   SiCsharp
 } from "react-icons/si";
 
 function Techstack() {
+  const technologies = [
+    [<DiJavascript1 />, "JavaScript"], [<SiTypescript />, "TypeScript"],
+    [<DiNodejs />, "Node.js"], [<DiReact />, "React"], [<DiMysql />, "MySQL"],
+    [<DiMongodb />, "MongoDB"], [<SiNextdotjs />, "Next.js"], [<DiGit />, "Git"],
+    [<SiCsharp />, "C#"], [<SiPostgresql />, "PostgreSQL"], [<DiPython />, "Python"], [<DiJava />, "Java"],
+  ];
   return (
-    <Row style={{ justifyContent: "center", paddingBottom: "50px" }}>
-     
-      <Col xs={4} md={2} className="tech-icons">
-        <DiJavascript1 />
-        <span className="tooltip">Javascript</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiTypescript />
-        <span className="tooltip">TypeScript</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiNodejs />
-        <span className="tooltip">Node.js</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiReact />
-        <span className="tooltip">React.js</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiMysql />
-        <span className="tooltip">MySQL</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiMongodb />
-        <span className="tooltip">Mongodb</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiNextdotjs />
-        <span className="tooltip">Next.js</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiGit /> <span className="tooltip">Git</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiCsharp/>  <span className="tooltip">C#</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <SiPostgresql /> <span className="tooltip">PostgreSQL</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiPython />
-        <span className="tooltip">Python</span>
-      </Col>
-      <Col xs={4} md={2} className="tech-icons">
-        <DiJava />
-        <span className="tooltip">JAVA</span>
-      </Col>
+    <Row className="about-tech-grid">
+      {technologies.map(([icon, name]) => (
+        <Col xs={6} sm={4} md={3} lg={2} key={name}>
+          <div className="about-tech-card hover-target" tabIndex="0">
+            <span className="about-tech-icon">{icon}</span>
+            <h3>{name}</h3>
+            <span className="about-tech-accent" aria-hidden="true" />
+          </div>
+        </Col>
+      ))}
     </Row>
   );
 }

@@ -7,8 +7,7 @@ import {
 import { FaLinkedinIn } from "react-icons/fa";
 
 function Footer() {
-  let date = new Date();
-  let year = date.getFullYear();
+  const year = new Date().getFullYear();
 
   return (
     <Container fluid className="footer">
@@ -17,7 +16,7 @@ function Footer() {
           <h3>Crafted by Kasi Nathan Murugan</h3>
         </Col>
         <Col md="4" className="footer-copywright">
-          <h3>Copyright © {year} </h3>
+          <h3>Copyright © {year}</h3>
         </Col>
         <Col md="4" className="footer-body">
           <ul className="footer-icons">
@@ -25,8 +24,9 @@ function Footer() {
               <a
                 href="https://github.com/Kasi-Nathan/"
                 style={{ color: "white" }}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
+                aria-label="GitHub profile"
               >
                 <AiFillGithub />
               </a>
@@ -35,8 +35,9 @@ function Footer() {
               <a
                 href="https://x.com/Kasi_Nathan_?t=59aMyqB-VY40svXM11qffQ&s=09"
                 style={{ color: "white" }}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
+                aria-label="X profile"
               >
                 <AiOutlineTwitter />
               </a>
@@ -45,13 +46,13 @@ function Footer() {
               <a
                 href="https://www.linkedin.com/in/kasinathan/"
                 style={{ color: "white" }}
-                target="_blank" 
+                target="_blank"
                 rel="noopener noreferrer"
+                aria-label="LinkedIn profile"
               >
                 <FaLinkedinIn />
               </a>
             </li>
-          
           </ul>
         </Col>
       </Row>

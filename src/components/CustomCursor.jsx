@@ -6,32 +6,27 @@ const CustomCursor = () => {
   const outerRef = useRef(null);
 
   useEffect(() => {
-    let requestId;
-    let mouseX = 0;
-    let mouseY = 0;
-    let currentX = 0;
-    let currentY = 0;
+    let requestId = null;
+    let pointerX = 0;
+    let pointerY = 0;
 
-    const animate = () => {
-      currentX += (mouseX - currentX) * 0.15;
-      currentY += (mouseY - currentY) * 0.15;
+    const renderCursor = () => {
+      const position = `translate3d(${pointerX}px, ${pointerY}px, 0) translate(-50%, -50%)`;
 
-      if (outerRef.current) {
-        outerRef.current.style.top = `${currentY}px`;
-        outerRef.current.style.left = `${currentX}px`;
+      if (innerRef.current && outerRef.current) {
+        innerRef.current.style.transform = position;
+        outerRef.current.style.transform = position;
+        innerRef.current.classList.add("visible");
+        outerRef.current.classList.add("visible");
       }
 
-      requestId = requestAnimationFrame(animate);
+      requestId = null;
     };
 
     const handleMouseMove = (e) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-
-      if (innerRef.current) {
-        innerRef.current.style.top = `${mouseY}px`;
-        innerRef.current.style.left = `${mouseX}px`;
-      }
+      pointerX = e.clientX;
+      pointerY = e.clientY;
+      if (requestId === null) requestId = requestAnimationFrame(renderCursor);
     };
 
     const addHover = () => {
@@ -44,22 +39,24 @@ const CustomCursor = () => {
       outerRef.current?.classList.remove("hover");
     };
 
-    document.addEventListener("mousemove", handleMouseMove);
-    requestId = requestAnimationFrame(animate);
+    const handlePointerOver = (event) => {
+      if (event.target.closest("a, button, .hover-target")) addHover();
+    };
 
-    const targets = document.querySelectorAll("a, button, .hover-target");
-    targets.forEach((el) => {
-      el.addEventListener("mouseenter", addHover);
-      el.addEventListener("mouseleave", removeHover);
-    });
+    const handlePointerOut = (event) => {
+      const interactive = event.target.closest("a, button, .hover-target");
+      if (interactive && !interactive.contains(event.relatedTarget)) removeHover();
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseover", handlePointerOver);
+    document.addEventListener("mouseout", handlePointerOut);
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
-      cancelAnimationFrame(requestId);
-      targets.forEach((el) => {
-        el.removeEventListener("mouseenter", addHover);
-        el.removeEventListener("mouseleave", removeHover);
-      });
+      document.removeEventListener("mouseover", handlePointerOver);
+      document.removeEventListener("mouseout", handlePointerOut);
+      if (requestId !== null) cancelAnimationFrame(requestId);
     };
   }, []);
 

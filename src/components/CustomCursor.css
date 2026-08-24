@@ -9,11 +9,13 @@
     position: fixed;
     top: 0;
     left: 0;
-    transform: translate(-50%, -50%);
+    opacity: 0;
+    transform: translate3d(0, 0, 0) translate(-50%, -50%);
     border-radius: 50%;
     z-index: 9999;
     pointer-events: none;
-    transition: width 0.2s, height 0.2s;
+    transition: width 0.2s, height 0.2s, opacity 0.15s;
+    will-change: transform, width, height;
   }
   
   .cursor-outer {
@@ -23,11 +25,18 @@
     position: fixed;
     top: 0;
     left: 0;
-    transform: translate(-50%, -50%);
+    opacity: 0;
+    transform: translate3d(0, 0, 0) translate(-50%, -50%);
     border-radius: 50%;
     z-index: 9998;
     pointer-events: none;
-    transition: width 0.2s, height 0.2s;
+    transition: width 0.2s, height 0.2s, opacity 0.15s;
+    will-change: transform, width, height;
+  }
+
+  .cursor-inner.visible,
+  .cursor-outer.visible {
+    opacity: 1;
   }
   
   .cursor-inner.hover {
@@ -39,5 +48,12 @@
   .cursor-outer.hover {
     width: 50px;
     height: 50px;
+  }
+
+  @media (hover: none), (pointer: coarse) {
+    .cursor-inner,
+    .cursor-outer {
+      display: none;
+    }
   }
   

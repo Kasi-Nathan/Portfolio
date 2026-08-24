@@ -1,149 +1,75 @@
-import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
-// import homeLogo from "../../Assets/home-main.svg";
+import React, { useEffect } from "react";
+import { Button, Container, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
 import Particle from "../Particle";
 import Home2 from "./Home2";
-import { useEffect } from "react";
-import Type from "./Type";
+import portrait from "../../Assets/me.png";
+import pdf from "../../Assets/CV.pdf";
 import Aos from "aos";
+import "./Home.css";
 
 function Home() {
-
   useEffect(() => {
-    Aos.init({
-      duration: 800,
-      easing: 'ease-in-out-cubic',
-      offset: 80, // lower offset = less "falling"
-      // once: true, 
-    });
+    Aos.init({ duration: 700, easing: "ease-out-cubic", offset: 60, once: true });
   }, []);
 
   return (
-    <section>
-      <Container fluid className="home-section" id="home">
+    <main className="portfolio-home">
+      <section className="home-hero" id="home" aria-labelledby="home-title">
         <Particle />
-        <Container className="home-content">
-          <Row>
-            <Col md={12} className="home-header">
-
-              <section className="landing-page-container1" id="home">
-                <div className="blob"></div>
-
-                <div className="text-content">
-                  <article id="hello-friend" data-aos="fade"
-                    data-aos-duration="800"
-                    data-aos-delay="0">
-                    <span className="jello">G</span >
-                    <span className="jello">r</span >
-                    <span className="jello">e</span >
-                    <span className="jello">e</span >
-                    <span className="jello">t</span >
-                    <span className="jello">i</span >
-                    <span className="jello">n</span >
-                    <span className="jello">g</span >
-                    <span className="jello">s</span >
-                    <span className="jello">(</span >
-                    <span className="jello">
-                      <span className="wave" role="img" aria-labelledby="wave">
-                        👋🏻
-                      </span></span >
-                    <span className="jello">)</span >
-                    <span className="jello">;</span >
-                    &nbsp;
-                    <span className="jello">I</span >
-                    <span className="jello">'</span >
-                    <span className="jello">m</span >
-                  </article>
-                  <article id="name" data-aos="zoom-in"
-                    data-aos-duration="800"
-                    data-aos-delay="300">
-                    <span className="jello">K</span >
-                    <span className="jello">a</span >
-                    <span className="jello">s</span >
-                    <span className="jello">i</span >
-
-                    &nbsp;
-                    <span className="jello">N</span >
-                    <span className="jello">a</span >
-                    <span className="jello">t</span >
-                    <span className="jello">h</span >
-                    <span className="jello">a</span >
-                    <span className="jello">n</span >
-
-                    &nbsp;
-                    <span className="jello">M</span >
-                    <span className="jello">u</span >
-                    <span className="jello">r</span >
-                    <span className="jello">u</span >
-                    <span className="jello">g</span >
-                    <span className="jello">a</span >
-                    <span className="jello">n</span >
-                    <span className="jello">.</span >
-                  </article>
-
-                  <article id="work" data-aos="fade"
-                    data-aos-duration="800"
-                    data-aos-delay="400">
-                    <div>
-                      <span className="jello">I</span >
-                    </div>
-
-                    <div>
-                      <span className="jello">c</span >
-                      <span className="jello">o</span >
-                      <span className="jello">d</span >
-                      <span className="jello">e</span >
-
-                    </div>
-
-
-                    <div>
-                      <span className="jello">w</span >
-                      <span className="jello">h</span >
-                      <span className="jello">a</span >
-                      <span className="jello">t</span >
-                    </div>
-
-                    <div>
-                      <span className="jello">y</span >
-                      <span className="jello">o</span >
-                      <span className="jello">u</span >
-                    </div>
-
-                    <div>
-                      <span className="jello">I</span >
-                      <span className="jello">m</span >
-                      <span className="jello">a</span >
-                      <span className="jello">g</span >
-                      <span className="jello">i</span >
-                      <span className="jello">n</span >
-                      <span className="jello">e</span >
-                    </div>
-                  </article>
-
-
-                </div>
-
-              </section>
-
-              <div style={{ padding: 50, textAlign: "left" }}>
-                {/* <Type /> */}
+        <div className="home-hero-glow home-hero-glow-one" />
+        <div className="home-hero-glow home-hero-glow-two" />
+        <Container className="home-hero-container">
+          <Row className="align-items-center home-hero-row">
+            <Col lg={7} className="home-hero-copy" data-aos="fade-up">
+              <div className="home-eyebrow">
+                <span className="home-status-dot" aria-hidden="true" />
+                Computer Science + Philosophy student
+              </div>
+              <h1 id="home-title">
+                I build thoughtful digital products where
+                <span> code meets intelligence.</span>
+              </h1>
+              <p className="home-hero-lead">
+                I’m Kasi Nathan Murugan, a software developer focused on clean frontend experiences, AI-assisted workflows, and practical machine learning.
+              </p>
+              <div className="home-hero-actions">
+                <Button as={Link} to="/project" className="home-primary-action">
+                  Explore my work <AiOutlineArrowRight />
+                </Button>
+                <Button href={pdf} target="_blank" rel="noreferrer" className="home-secondary-action">
+                  <AiOutlineDownload /> Resume
+                </Button>
+              </div>
+              <div className="home-capabilities" aria-label="Core capabilities">
+                <span>Frontend development</span>
+                <span>AI integration</span>
+                <span>Applied ML</span>
               </div>
             </Col>
-
-            {/* <Col md={4} style={{ paddingBottom: 20 }}>
-              <img
-                src={homeLogo}
-                alt="home pic"
-                className="img-fluid"
-                style={{ maxHeight: "450px" }}
-              />
-            </Col> */}
+            <Col lg={5} className="home-portrait-col" data-aos="fade-left" data-aos-delay="150">
+              <div className="home-portrait-frame">
+                <div className="home-portrait-ring" />
+                <img src={portrait} alt="Kasi Nathan Murugan" />
+                <div className="home-portrait-card home-portrait-card-top">
+                  <span>Focus</span>
+                  Human-centered software
+                </div>
+                <div className="home-portrait-card home-portrait-card-bottom">
+                  <span>Based in</span>
+                  Germany
+                </div>
+              </div>
+            </Col>
           </Row>
         </Container>
-      </Container>
+        <a className="home-scroll-cue" href="#featured-work" aria-label="Scroll to featured work">
+          <span /> Scroll to explore
+        </a>
+      </section>
       <Home2 />
-    </section>
+    </main>
   );
 }
 
