@@ -5,6 +5,7 @@ import pdf from "../../Assets/CV.pdf";
 import codeEditor from "../../Assets/Projects/codeEditor.png";
 import Bone from "../../Assets/Projects/BoneDisease/bone1.png";
 import Aos from "aos";
+import projects from "../../data/projects.json";
 import {
   AiFillGithub,
   AiOutlineCode,
@@ -16,25 +17,17 @@ import { FaLinkedinIn } from "react-icons/fa";
 import { CgFileDocument } from "react-icons/cg";
 import { BsStars } from "react-icons/bs";
 
-const featuredProjects = [
-  {
-    title: "Smart Study Calendar",
-    image: codeEditor,
-    summary: "AI-assisted planning with adaptive scheduling, Gemini explanations, and a drag-and-drop weekly calendar.",
-    stack: "React + Vite, Tailwind, FastAPI, Gemini",
-  },
-  {
-    title: "Bone Disease Prediction",
-    image: Bone,
-    summary: "Final-year machine learning project for interpretable bone disease risk prediction.",
-    stack: "Java, Machine Learning, Decision Trees",
-  },
-  {
-    title: "Full-Stack Music Player",
-    summary: "Role-based music platform for streaming, uploads, playlists, favorites, search, advertising, and admin analytics.",
-    stack: "React + Vite, Node.js, Express, MongoDB",
-  },
-];
+const projectImages = {
+  codeEditor,
+  bone: Bone,
+};
+
+const featuredProjects = projects
+  .filter((project) => project.priority)
+  .map((project) => ({
+    ...project,
+    image: projectImages[project.image],
+  }));
 
 const buildFocusAreas = [
   {
@@ -78,7 +71,7 @@ function Home2() {
           </div>
           <Row className="featured-work-grid">
             {featuredProjects.map((project, index) => (
-              <Col md={index === 0 ? 8 : 4} className="featured-work-col" key={project.title}>
+              <Col md={index === 0 ? 8 : 4} className="featured-work-col" key={project.id}>
                 <article className={`featured-work-card ${index === 0 ? "featured-work-card-primary" : ""}`}>
                   {project.image && (
                     <div className="featured-work-image"><img src={project.image} alt={`${project.title} preview`} /></div>
@@ -87,7 +80,7 @@ function Home2() {
                     <span className="featured-work-number">0{index + 1}</span>
                     <h2>{project.title}</h2>
                     <p>{project.summary}</p>
-                    <span className="featured-work-stack">{project.stack}</span>
+                    <span className="featured-work-stack">{project.techStack}</span>
                   </div>
                 </article>
               </Col>
