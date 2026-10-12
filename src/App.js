@@ -5,7 +5,6 @@ import Home from "./components/Home/Home";
 import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";  // Your existing Projects component
 import Footer from "./components/Footer";
-import Resume from "./components/Resume/ResumeNew";
 import CustomCursor from "./components/CustomCursor";
 import "aos/dist/aos.css";
 import {
@@ -44,7 +43,6 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/project" element={<Projects />} />
           <Route path="/about" element={<About />} />
-          <Route path="/resume" element={<Resume />} />
           <Route path="/gallery" element={<ImageGallery />} />
           <Route path="/bonegallery" element={<BoneGallery />} />
           <Route path="/cryptogallery" element={<CryptoGallery />} />

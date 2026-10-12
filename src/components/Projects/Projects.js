@@ -6,7 +6,6 @@ import chatbot from "../../Assets/Projects/Education/chatbot1.png";
 import Crypto from "../../Assets/Projects/Crypto/Crypto1.png";
 import Bone from "../../Assets/Projects/BoneDisease/bone1.png";
 import windowSwap from "../../Assets/Projects/WindowSwap.png";
-import mucik from "../../Assets/Projects/mucik.png";
 import elder from "../../Assets/Projects/elder.png";
 import "./Projects.css";
 
@@ -52,7 +51,7 @@ function Projects() {
               title="Bone Disease Prediction"
               priority
               summary="A final-year machine learning project focused on predicting bone disease risk with interpretable modeling."
-              techStack="Python, Decision Trees, Machine Learning, Web/System Implementation"
+              techStack="Java, Decision Trees, Machine Learning, Web/System Implementation"
               description={
                 <>
                   <strong>What I built</strong>
@@ -81,34 +80,27 @@ function Projects() {
 
           <Col md={12} className="project-card d-flex justify-content-center">
             <ProjectCard
-              imgPath={Crypto}
-              title="Real Time Cryptocurrency Tracker"
+              title="Full-Stack Music Player"
               priority
-              summary="A responsive market dashboard for live cryptocurrency price tracking."
-              techStack="HTML, CSS, JavaScript, Public APIs"
+              summary="A role-based music platform for streaming tracks and managing a personalized music library."
+              techStack="React + Vite, Node.js, Express, MongoDB, JWT, Howler.js"
               description={
                 <>
                   <strong>What I built</strong>
                   <p>
-                    I integrated public market APIs and built a clear interface for displaying live crypto prices and market changes.
+                    I built a responsive music platform with streaming and playback controls, song search, favorites, and user-created playlists backed by a REST API and MongoDB.
                   </p>
-                  <strong>Product focus</strong>
+                  <strong>Role-based experience</strong>
                   <p>
-                    The UI prioritizes quick scanning, responsive behavior, and readable data presentation so users can understand updates without extra friction.
+                    JWT authentication supports separate User, Creator, and Admin workflows. Creators can upload tracks, while administrators can manage songs, playlists, advertisements, and view analytics.
                   </p>
                   <strong>Result</strong>
                   <p>
-                    The project strengthened my async JavaScript skills and helped me think through real-time data states in the browser.
-                  </p>
-                  <p>
-                    <a href="https://drive.google.com/file/d/1kSalTfYmTTtOF_eXQJ8vpf6X1EyUJWjA/view" target="_blank" rel="noreferrer">
-                      View project report
-                    </a>
+                    This project expanded the original frontend player into a complete full-stack product, including protected routes, file uploads, music metadata extraction, and persistent user data.
                   </p>
                 </>
               }
-              imageLink="/cryptogallery"
-              ghLink="https://github.com/Kasi-Nathan/Crypto_Currency_tracker_project"
+              ghLink="https://github.com/Kasi-Nathan/Full-Stack-Music-Player"
             />
           </Col>
 
@@ -173,29 +165,33 @@ function Projects() {
 
           <Col md={12} className="project-card d-flex justify-content-center">
             <ProjectCard
-              imgPath={mucik}
-              title="Music Player"
-              secondary
-              summary="A React-based music player with a polished playback control experience."
-              techStack="React.js, State Management, UI/UX"
+              imgPath={Crypto}
+              title="Real Time Cryptocurrency Tracker"
+              summary="A responsive market dashboard for live cryptocurrency price tracking."
+              techStack="HTML, CSS, JavaScript, Public APIs"
               description={
                 <>
                   <strong>What I built</strong>
                   <p>
-                    I implemented search, playback controls, track progress, and volume interaction in a clean state-driven interface.
+                    I integrated public market APIs and built a clear interface for displaying live crypto prices and market changes.
                   </p>
-                  <strong>Interaction focus</strong>
+                  <strong>Product focus</strong>
                   <p>
-                    The project emphasized responsive controls and smooth transitions between common music player actions.
+                    The UI prioritizes quick scanning, responsive behavior, and readable data presentation so users can understand updates without extra friction.
                   </p>
                   <strong>Result</strong>
                   <p>
-                    It improved my understanding of interactive components and user feedback in frontend applications.
+                    The project strengthened my async JavaScript skills and helped me think through real-time data states in the browser.
+                  </p>
+                  <p>
+                    <a href="https://drive.google.com/file/d/1kSalTfYmTTtOF_eXQJ8vpf6X1EyUJWjA/view" target="_blank" rel="noreferrer">
+                      View project report
+                    </a>
                   </p>
                 </>
               }
-              ghLink="https://github.com/Kasi-Nathan/rich-functional-music-player"
-              demoLink="https://kasi-nathan.github.io/rich-functional-music-player/"
+              imageLink="/cryptogallery"
+              ghLink="https://github.com/Kasi-Nathan/Crypto_Currency_tracker_project"
             />
           </Col>
 

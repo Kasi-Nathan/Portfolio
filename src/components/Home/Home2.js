@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import pdf from "../../Assets/CV.pdf";
 import codeEditor from "../../Assets/Projects/codeEditor.png";
 import Bone from "../../Assets/Projects/BoneDisease/bone1.png";
-import Crypto from "../../Assets/Projects/Crypto/Crypto1.png";
 import Aos from "aos";
 import {
   AiFillGithub,
@@ -28,13 +27,12 @@ const featuredProjects = [
     title: "Bone Disease Prediction",
     image: Bone,
     summary: "Final-year machine learning project for interpretable bone disease risk prediction.",
-    stack: "Python, Machine Learning, Decision Trees",
+    stack: "Java, Machine Learning, Decision Trees",
   },
   {
-    title: "Cryptocurrency Tracker",
-    image: Crypto,
-    summary: "Responsive live-market dashboard for clear cryptocurrency price tracking.",
-    stack: "HTML, CSS, JavaScript, APIs",
+    title: "Full-Stack Music Player",
+    summary: "Role-based music platform for streaming, uploads, playlists, favorites, search, advertising, and admin analytics.",
+    stack: "React + Vite, Node.js, Express, MongoDB",
   },
 ];
 
@@ -76,13 +74,15 @@ function Home2() {
               <span className="home-section-kicker">Selected work</span>
               <h2 id="featured-work-heading">Projects with a <span>clear purpose.</span></h2>
             </div>
-            <p>A selection of products spanning AI-assisted planning, applied machine learning, and real-time interfaces.</p>
+            <p>A selection of products spanning AI-assisted planning, applied machine learning, and full-stack product development.</p>
           </div>
           <Row className="featured-work-grid">
             {featuredProjects.map((project, index) => (
               <Col md={index === 0 ? 8 : 4} className="featured-work-col" key={project.title}>
                 <article className={`featured-work-card ${index === 0 ? "featured-work-card-primary" : ""}`}>
-                  <div className="featured-work-image"><img src={project.image} alt={`${project.title} preview`} /></div>
+                  {project.image && (
+                    <div className="featured-work-image"><img src={project.image} alt={`${project.title} preview`} /></div>
+                  )}
                   <div className="featured-work-body">
                     <span className="featured-work-number">0{index + 1}</span>
                     <h2>{project.title}</h2>
