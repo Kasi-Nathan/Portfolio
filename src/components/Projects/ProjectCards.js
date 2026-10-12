@@ -14,10 +14,13 @@ function ProjectCards(props) {
 
   return (
     <Card className={`${cardClassName} hover-target`}>
-      <div className="project-image-wrap">
-        <Card.Img variant="top" src={props.imgPath} alt={props.title} />
-        {props.priority && <span className="project-featured-label">Featured project</span>}
-      </div>
+      {props.imgPath && (
+        <div className="project-image-wrap">
+          <Card.Img variant="top" src={props.imgPath} alt={props.title} />
+          {props.priority && <span className="project-featured-label">Featured project</span>}
+        </div>
+      )}
+      {!props.imgPath && props.priority && <span className="project-featured-label project-featured-label-inline">Featured project</span>}
       <Card.Body>
         <Card.Title>{props.title}</Card.Title>
         {props.summary && <p className="project-summary">{props.summary}</p>}

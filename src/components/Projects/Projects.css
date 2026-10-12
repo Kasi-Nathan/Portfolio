@@ -17,6 +17,7 @@
 .projects-page .project-card:first-child img { height: 100%; min-height: 440px; }
 .projects-page .project-card-view:hover img { transform: scale(1.025); }
 .project-featured-label { position: absolute; top: 1rem; left: 1rem; padding: .45rem .65rem; color: #eee5f3; font-size: .65rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; border: 1px solid rgba(255,255,255,.13); border-radius: 99px; background: rgba(11,7,20,.76); backdrop-filter: blur(10px); }
+.project-featured-label-inline { position: static; width: fit-content; margin: 1.25rem 1.45rem 0; }
 .projects-page .project-card-view .card-body { display: flex; flex-direction: column; padding: 1.45rem 1.45rem 1.55rem; }
 .projects-page .project-card-view .card-title { color: #f5f0f8; font-size: 1.45rem; letter-spacing: -.025em; }
 .projects-page .project-card-priority .card-title::after { height: 2px; background: linear-gradient(90deg,#6bc5f8,#cf59e6); }
