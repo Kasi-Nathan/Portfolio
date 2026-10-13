@@ -5,22 +5,36 @@ import {
   SiPostman,
   SiVercel,
   SiWindows,
-  SiVite
+  SiVite,
 } from "react-icons/si";
+import skills from "../../data/skills.json";
+
+const toolIcons = {
+  windows: SiWindows,
+  vscode: SiVisualstudiocode,
+  postman: SiPostman,
+  vercel: SiVercel,
+  vite: SiVite,
+};
 
 function Toolstack() {
-  const tools = [[<SiWindows />, "Windows"], [<SiVisualstudiocode />, "VS Code"], [<SiPostman />, "Postman"], [<SiVercel />, "Vercel"], [<SiVite />, "Vite"]];
   return (
     <Row className="about-tech-grid about-tool-grid">
-      {tools.map(([icon, name]) => (
-        <Col xs={6} sm={4} md={3} lg={2} key={name}>
-          <div className="about-tech-card hover-target" tabIndex="0">
-            <span className="about-tech-icon">{icon}</span>
-            <h3>{name}</h3>
-            <span className="about-tech-accent" aria-hidden="true" />
-          </div>
-        </Col>
-      ))}
+      {skills.tools.map((tool) => {
+        const Icon = toolIcons[tool.icon];
+
+        return (
+          <Col xs={6} sm={4} md={3} lg={2} key={tool.id}>
+            <div className="about-tech-card hover-target" tabIndex="0">
+              <span className="about-tech-icon" aria-hidden="true">
+                {Icon ? <Icon /> : <span>◇</span>}
+              </span>
+              <h3>{tool.name}</h3>
+              <span className="about-tech-accent" aria-hidden="true" />
+            </div>
+          </Col>
+        );
+      })}
     </Row>
   );
 }
