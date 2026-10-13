@@ -1,7 +1,7 @@
 [
   {
     "id": "smart-study-calendar",
-    "image": "codeEditor",
+    "image": "/uploads/projects/codeEditor.png",
     "title": "Smart Study Calendar",
     "priority": true,
     "summary": "An AI-assisted study planning system for turning weekly goals into focused, adaptive schedules.",
@@ -23,7 +23,7 @@
   },
   {
     "id": "bone-disease-prediction",
-    "image": "bone",
+    "image": "/uploads/projects/bone1.png",
     "title": "Bone Disease Prediction",
     "priority": true,
     "summary": "A final-year machine learning project focused on predicting bone disease risk with interpretable modeling.",
@@ -70,7 +70,7 @@
   },
   {
     "id": "educational-chatbot",
-    "image": "chatbot",
+    "image": "/uploads/projects/chatbot1.png",
     "title": "Educational Chatbot",
     "summary": "A conversational learning interface for programming resources and guided exploration.",
     "techStack": "React.js, UI Design, Frontend Development",
@@ -93,7 +93,7 @@
   },
   {
     "id": "window-swap-clone",
-    "image": "windowSwap",
+    "image": "/uploads/projects/WindowSwap.png",
     "title": "Window Swap Clone",
     "secondary": true,
     "summary": "A UI-focused frontend practice project inspired by a calm immersive browsing experience.",
@@ -117,7 +117,7 @@
   },
   {
     "id": "cryptocurrency-tracker",
-    "image": "crypto",
+    "image": "/uploads/projects/Crypto1.png",
     "title": "Real Time Cryptocurrency Tracker",
     "summary": "A responsive market dashboard for live cryptocurrency price tracking.",
     "techStack": "HTML, CSS, JavaScript, Public APIs",
@@ -141,7 +141,7 @@
   },
   {
     "id": "elderly-care-clone",
-    "image": "elder",
+    "image": "/uploads/projects/elder.png",
     "title": "Elderly Care Clone",
     "secondary": true,
     "summary": "A frontend practice project focused on accessible, supportive UI design.",

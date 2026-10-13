@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import pdf from "../../Assets/CV.pdf";
-import codeEditor from "../../Assets/Projects/codeEditor.png";
-import Bone from "../../Assets/Projects/BoneDisease/bone1.png";
 import Aos from "aos";
 import projects from "../../data/projects.json";
 import {
@@ -17,17 +15,7 @@ import { FaLinkedinIn } from "react-icons/fa";
 import { CgFileDocument } from "react-icons/cg";
 import { BsStars } from "react-icons/bs";
 
-const projectImages = {
-  codeEditor,
-  bone: Bone,
-};
-
-const featuredProjects = projects
-  .filter((project) => project.priority)
-  .map((project) => ({
-    ...project,
-    image: projectImages[project.image],
-  }));
+const featuredProjects = projects.filter((project) => project.priority);
 
 const buildFocusAreas = [
   {
