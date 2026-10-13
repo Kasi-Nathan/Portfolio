@@ -7,7 +7,7 @@ import Particle from "../Particle";
 import Techstack from "./Techstack";
 import Aboutcard from "./AboutCard";
 import laptopImg from "../../Assets/tech.jpg";
-import pdf from "../../Assets/CV.pdf";
+import settings from "../../data/settings.json";
 import Toolstack from "./Toolstack";
 import "./About.css";
 
@@ -33,7 +33,7 @@ function About() {
                 <Button as={Link} to="/project" className="about-primary-action">
                   See what I build <AiOutlineArrowRight />
                 </Button>
-                <Button href={pdf} target="_blank" rel="noreferrer" className="about-secondary-action">
+                <Button href={settings.resumeUrl} target="_blank" rel="noreferrer" className="about-secondary-action">
                   <AiOutlineDownload /> Resume
                 </Button>
               </div>
