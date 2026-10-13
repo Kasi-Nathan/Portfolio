@@ -2,23 +2,8 @@ import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ProjectCard from "./ProjectCards";
 import projects from "../../data/projects.json";
-
-import codeEditor from "../../Assets/Projects/codeEditor.png";
-import chatbot from "../../Assets/Projects/Education/chatbot1.png";
-import Crypto from "../../Assets/Projects/Crypto/Crypto1.png";
-import Bone from "../../Assets/Projects/BoneDisease/bone1.png";
-import windowSwap from "../../Assets/Projects/WindowSwap.png";
-import elder from "../../Assets/Projects/elder.png";
 import "./Projects.css";
 
-const projectImages = {
-  codeEditor,
-  chatbot,
-  crypto: Crypto,
-  bone: Bone,
-  windowSwap,
-  elder,
-};
 
 function Projects() {
   return (
@@ -50,7 +35,7 @@ function Projects() {
               >
                 <ProjectCard
                   {...project}
-                  imgPath={projectImages[project.image]}
+                  imgPath={project.image}
                   description={
                     <>
                       {(project.sections || []).map((section, index) => (
