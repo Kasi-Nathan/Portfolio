@@ -1,23 +1,91 @@
 {
   "technologies": [
-    { "id": "javascript", "name": "JavaScript", "icon": "javascript" },
-    { "id": "typescript", "name": "TypeScript", "icon": "typescript" },
-    { "id": "nodejs", "name": "Node.js", "icon": "nodejs" },
-    { "id": "react", "name": "React", "icon": "react" },
-    { "id": "mysql", "name": "MySQL", "icon": "mysql" },
-    { "id": "mongodb", "name": "MongoDB", "icon": "mongodb" },
-    { "id": "nextjs", "name": "Next.js", "icon": "nextjs" },
-    { "id": "git", "name": "Git", "icon": "git" },
-    { "id": "csharp", "name": "C#", "icon": "csharp" },
-    { "id": "postgresql", "name": "PostgreSQL", "icon": "postgresql" },
-    { "id": "python", "name": "Python", "icon": "python" },
-    { "id": "java", "name": "Java", "icon": "java" }
+    {
+      "id": "javascript",
+      "name": "JavaScript",
+      "icon": "javascript"
+    },
+    {
+      "id": "typescript",
+      "name": "TypeScript",
+      "icon": "typescript"
+    },
+    {
+      "id": "nodejs",
+      "name": "Node.js",
+      "icon": "nodejs"
+    },
+    {
+      "id": "react",
+      "name": "React",
+      "icon": "react"
+    },
+    {
+      "id": "mysql",
+      "name": "MySQL",
+      "icon": "mysql"
+    },
+    {
+      "id": "mongodb",
+      "name": "MongoDB",
+      "icon": "mongodb"
+    },
+    {
+      "id": "nextjs",
+      "name": "Next.js",
+      "icon": "nextjs"
+    },
+    {
+      "id": "git",
+      "name": "Git",
+      "icon": "git"
+    },
+    {
+      "id": "csharp",
+      "name": "C#",
+      "icon": "csharp"
+    },
+    {
+      "id": "postgresql",
+      "name": "PostgreSQL",
+      "icon": "postgresql"
+    },
+    {
+      "id": "python",
+      "name": "Python",
+      "icon": "python"
+    },
+    {
+      "id": "java",
+      "name": "Java",
+      "icon": "java"
+    }
   ],
   "tools": [
-    { "id": "windows", "name": "Windows", "icon": "windows" },
-    { "id": "vscode", "name": "VS Code", "icon": "vscode" },
-    { "id": "postman", "name": "Postman", "icon": "postman" },
-    { "id": "vercel", "name": "Vercel", "icon": "vercel" },
-    { "id": "vite", "name": "Vite", "icon": "vite" }
+    {
+      "id": "windows",
+      "name": "Windows",
+      "icon": "windows"
+    },
+    {
+      "id": "vscode",
+      "name": "VS Code",
+      "icon": "vscode"
+    },
+    {
+      "id": "postman",
+      "name": "Postman",
+      "icon": "postman"
+    },
+    {
+      "id": "vercel",
+      "name": "Vercel",
+      "icon": "vercel"
+    },
+    {
+      "id": "vite",
+      "name": "Vite",
+      "icon": "vite"
+    }
   ]
 }

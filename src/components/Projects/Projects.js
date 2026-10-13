@@ -1,8 +1,10 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import ProjectCard from "./ProjectCards";
-import projects from "../../data/projects.json";
+import projectData from "../../data/projects.json";
 import "./Projects.css";
+
+const projects = projectData.projects;
 
 
 function Projects() {

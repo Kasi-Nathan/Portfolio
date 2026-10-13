@@ -1,0 +1,109 @@
+backend:
+  name: github
+  repo: Kasi-Nathan/Portfolio
+  branch: master
+
+local_backend: true
+
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  - name: portfolio
+    label: Portfolio
+    editor:
+      preview: false
+    files:
+      - name: projects
+        label: Projects
+        file: src/data/projects.json
+        format: json
+        fields:
+          - name: projects
+            label: Projects
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { name: id, label: Unique ID, widget: string }
+              - { name: title, label: Title, widget: string }
+              - name: image
+                label: Screenshot
+                widget: image
+                required: false
+              - name: priority
+                label: Featured on homepage
+                widget: boolean
+                default: false
+                required: false
+              - name: secondary
+                label: Secondary card style
+                widget: boolean
+                default: false
+                required: false
+              - { name: summary, label: Summary, widget: text }
+              - { name: techStack, label: Technologies, widget: string }
+              - name: sections
+                label: Case study sections
+                widget: list
+                fields:
+                  - { name: heading, label: Heading, widget: string }
+                  - { name: text, label: Description, widget: text }
+              - { name: reportLink, label: Report URL, widget: string, required: false }
+              - { name: ghLink, label: GitHub URL, widget: string, required: false }
+              - { name: demoLink, label: Demo URL, widget: string, required: false }
+              - { name: imageLink, label: Gallery route, widget: string, required: false }
+
+      - name: skills
+        label: Skills and Tools
+        file: src/data/skills.json
+        format: json
+        fields:
+          - name: technologies
+            label: Technologies
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { name: id, label: Unique ID, widget: string }
+              - { name: name, label: Display name, widget: string }
+              - name: icon
+                label: Icon
+                widget: select
+                options:
+                  - javascript
+                  - typescript
+                  - nodejs
+                  - react
+                  - mysql
+                  - mongodb
+                  - nextjs
+                  - git
+                  - csharp
+                  - postgresql
+                  - python
+                  - java
+
+          - name: tools
+            label: Tools
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { name: id, label: Unique ID, widget: string }
+              - { name: name, label: Display name, widget: string }
+              - name: icon
+                label: Icon
+                widget: select
+                options:
+                  - windows
+                  - vscode
+                  - postman
+                  - vercel
+                  - vite
+
+      - name: settings
+        label: Resume
+        file: src/data/settings.json
+        format: json
+        fields:
+          - name: resumeUrl
+            label: Resume PDF
+            widget: file

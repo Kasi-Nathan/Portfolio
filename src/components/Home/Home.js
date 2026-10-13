@@ -5,7 +5,7 @@ import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
 import Particle from "../Particle";
 import Home2 from "./Home2";
 import portrait from "../../Assets/me.png";
-import pdf from "../../Assets/CV.pdf";
+import settings from "../../data/settings.json";
 import Aos from "aos";
 import "./Home.css";
 
@@ -38,7 +38,7 @@ function Home() {
                 <Button as={Link} to="/project" className="home-primary-action">
                   Explore my work <AiOutlineArrowRight />
                 </Button>
-                <Button href={pdf} target="_blank" rel="noreferrer" className="home-secondary-action">
+                <Button href={settings.resumeUrl} target="_blank" rel="noreferrer" className="home-secondary-action">
                   <AiOutlineDownload /> Resume
                 </Button>
               </div>

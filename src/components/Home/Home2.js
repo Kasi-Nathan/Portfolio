@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import pdf from "../../Assets/CV.pdf";
+import settings from "../../data/settings.json";
 import Aos from "aos";
-import projects from "../../data/projects.json";
+import projectData from "../../data/projects.json";
 import {
   AiFillGithub,
   AiOutlineCode,
@@ -15,6 +15,7 @@ import { FaLinkedinIn } from "react-icons/fa";
 import { CgFileDocument } from "react-icons/cg";
 import { BsStars } from "react-icons/bs";
 
+const projects = projectData.projects;
 const featuredProjects = projects.filter((project) => project.priority);
 
 const buildFocusAreas = [
@@ -121,7 +122,7 @@ function Home2() {
             <Button href="https://github.com/Kasi-Nathan/" target="_blank" rel="noreferrer" variant="primary" aria-label="Open GitHub profile">
               <AiFillGithub /> GitHub
             </Button>
-            <Button href={pdf} target="_blank" rel="noreferrer" variant="primary" aria-label="Download resume PDF">
+            <Button href={settings.resumeUrl} target="_blank" rel="noreferrer" variant="primary" aria-label="Download resume PDF">
               <CgFileDocument /> Download Resume
             </Button>
           </div>
