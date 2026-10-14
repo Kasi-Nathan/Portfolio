@@ -169,7 +169,7 @@
       "secondary": false,
       "id": "csv-quality-workbench",
       "title": "CSV Quality Workbench",
-      "summary": "CSV Quality Workbench is a React and FastAPI web app that checks uploaded CSV files for missing values and duplicate rows, displays results, and exports JSON reports. We’re building it to practise full-stack development and Git workflows, with the goal of launching a public website.",
+      "summary": "CSV Quality Workbench is a React and FastAPI web app that checks uploaded CSV files for missing values and duplicate rows, displays results, and exports JSON reports. We’re building it to practise full-stack development and Git workflows, with the goal of launching a public website.\n(Testing text)",
       "techStack": "Python, FastAPI, React, JavaScript, Vite, HTML/CSS, Git, and GitHub.",
       "image": "/uploads/screenshot-2026-10-08-134633.png"
     }
