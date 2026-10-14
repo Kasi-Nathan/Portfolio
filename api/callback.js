@@ -33,17 +33,17 @@ module.exports = async function handler(req, res) {
       .filter(([key, value]) => key && value)
   );
 
-  const expectedState = cookies.portfolio_oauth_state;
-  const verifier = cookies.portfolio_oauth_verifier;
+  const expectedState = cookies["__Host-cms_state"];
+  const verifier = cookies["__Host-cms_verifier"];
   const { code, state } = req.query;
 
   // Remove the temporary cookies, including on failed attempts.
   const clearOptions =
-    "HttpOnly; Secure; SameSite=Lax; Path=/api; Max-Age=0";
+    "HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0";
 
   res.setHeader("Set-Cookie", [
-    `portfolio_oauth_state=; ${clearOptions}`,
-    `portfolio_oauth_verifier=; ${clearOptions}`,
+    `__Host-cms_state=; ${clearOptions}`,
+    `__Host-cms_verifier=; ${clearOptions}`,
   ]);
 
   if (
