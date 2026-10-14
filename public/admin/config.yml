@@ -2,6 +2,9 @@ backend:
   name: github
   repo: Kasi-Nathan/Portfolio
   branch: master
+  base_url: https://kasinathan.vercel.app
+  auth_endpoint: api/auth
+  auth_scope: public_repo
 
 local_backend: true
 
