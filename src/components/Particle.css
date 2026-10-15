@@ -1,13 +1,21 @@
-.background-image {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('../Assets/giphy.gif'); 
-    background-size: cover;
-    background-position: center;
-    opacity: 0.6; /* Adjust transparency here (0 to 1) */
-    z-index: -1; /* Send behind all content */
-    pointer-events: none;
-  }
+.space-background { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; background: #070812; }
+.space-nebula { position: absolute; inset: 0; background:
+  radial-gradient(ellipse at 79% 28%, rgba(123,60,173,.32), transparent 34%),
+  radial-gradient(ellipse at 100% 54%, rgba(51,133,164,.24), transparent 32%),
+  radial-gradient(ellipse at -8% 72%, rgba(113,49,157,.32), transparent 30%),
+  radial-gradient(ellipse at 55% -25%, rgba(85,64,160,.24), transparent 48%); }
+.space-stars { position: absolute; inset: -40px; background-repeat: repeat; animation: star-drift 140s linear infinite alternate; }
+.space-stars-far { opacity: .42; background-size: 431px 397px; background-image:
+  radial-gradient(1px 1px at 23px 57px,#d6dbed 90%,transparent),
+  radial-gradient(1px 1px at 139px 211px,#c6d6e8 90%,transparent),
+  radial-gradient(1px 1px at 311px 89px,#e1d0ef 90%,transparent),
+  radial-gradient(1px 1px at 389px 329px,#c6d6e8 90%,transparent),
+  radial-gradient(1px 1px at 67px 353px,#c6d6e8 90%,transparent),
+  radial-gradient(1px 1px at 243px 289px,#c6d6e8 90%,transparent); }
+.space-stars-near { opacity: .58; background-size: 617px 541px; animation-duration: 100s; background-image:
+  radial-gradient(1.4px 1.4px at 113px 137px,#dce9f5 65%,transparent),
+  radial-gradient(1.2px 1.2px at 443px 367px,#cfbce5 65%,transparent),
+  radial-gradient(1.3px 1.3px at 557px 63px,#b7dfe8 65%,transparent); }
+@keyframes star-drift { to { transform: translate3d(25px,-30px,0); } }
+@media (max-width: 767px) { .space-stars-near { display: none; } .space-stars { animation: none; } .space-nebula { opacity: .8; } }
+@media (prefers-reduced-motion: reduce) { .space-stars { animation: none; } }

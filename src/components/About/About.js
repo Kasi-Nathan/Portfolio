@@ -1,9 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
-import Aos from "aos";
-import Particle from "../Particle";
+
 import Techstack from "./Techstack";
 import Aboutcard from "./AboutCard";
 import laptopImg from "../../Assets/tech.jpg";
@@ -12,15 +11,10 @@ import Toolstack from "./Toolstack";
 import "./About.css";
 
 function About() {
-  useEffect(() => {
-    Aos.init({ duration: 700, easing: "ease-out-cubic", offset: 60, once: true });
-  }, []);
 
   return (
     <main className="about-page">
       <section className="about-hero" aria-labelledby="about-title">
-        <Particle />
-        <div className="about-hero-glow" />
         <Container>
           <Row className="align-items-center about-hero-row">
             <Col lg={7} data-aos="fade-up">

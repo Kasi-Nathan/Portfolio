@@ -1,25 +1,18 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
-import Particle from "../Particle";
+
 import Home2 from "./Home2";
 import portrait from "../../Assets/me.png";
 import settings from "../../data/settings.json";
-import Aos from "aos";
 import "./Home.css";
 
 function Home() {
-  useEffect(() => {
-    Aos.init({ duration: 700, easing: "ease-out-cubic", offset: 60, once: true });
-  }, []);
 
   return (
     <main className="portfolio-home">
       <section className="home-hero" id="home" aria-labelledby="home-title">
-        <Particle />
-        <div className="home-hero-glow home-hero-glow-one" />
-        <div className="home-hero-glow home-hero-glow-two" />
         <Container className="home-hero-container">
           <Row className="align-items-center home-hero-row">
             <Col lg={7} className="home-hero-copy" data-aos="fade-up">
@@ -50,7 +43,8 @@ function Home() {
             </Col>
             <Col lg={5} className="home-portrait-col" data-aos="fade-left" data-aos-delay="150">
               <div className="home-portrait-frame">
-                <div className="home-portrait-ring" />
+                <div className="home-portrait-ring" aria-hidden="true" />
+                <div className="home-portrait-orbit" aria-hidden="true" />
                 <img src={portrait} alt="Kasi Nathan Murugan" />
                 <div className="home-portrait-card home-portrait-card-top">
                   <span>Focus</span>

@@ -13,7 +13,7 @@ function ProjectCards(props) {
   ].filter(Boolean).join(" ");
 
   return (
-    <Card className={`${cardClassName} hover-target`}>
+    <Card className={cardClassName}>
       {props.imgPath && (
         <div className="project-image-wrap">
           <Card.Img variant="top" src={props.imgPath} alt={props.title} />

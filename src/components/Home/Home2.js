@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Button, Container, Row, Col } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import settings from "../../data/settings.json";
-import Aos from "aos";
 import projectData from "../../data/projects.json";
 import {
   AiFillGithub,
@@ -37,15 +36,6 @@ const buildFocusAreas = [
 ];
 
 function Home2() {
-  useEffect(() => {
-    const isSmallScreen = window.innerWidth < 768;
-
-    Aos.init({
-      duration: 700,
-      offset: isSmallScreen ? 100 : 300,
-      easing: "ease-out",
-    });
-  }, []);
 
   return (
     <Container fluid className="home-about-section">
