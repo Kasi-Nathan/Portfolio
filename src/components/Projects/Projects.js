@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import ProjectCard from "./ProjectCards";
 import projectData from "../../data/projects.json";
 import "./Projects.css";
@@ -28,15 +28,18 @@ function Projects() {
             </p>
           </div>
 
-          <Row className="project-grid">
-            {projects.map((project) => (
-              <Col
+          <div className="project-grid">
+            {projects.map((project) => {
+              const isFeatured = project.id === "smart-study-calendar";
+
+              return (
+              <div
                 key={project.id}
-                md={12}
-                className="project-card d-flex justify-content-center"
+                className={`project-card${isFeatured ? " project-card-featured" : ""}`}
               >
                 <ProjectCard
                   {...project}
+                  featured={isFeatured}
                   imgPath={project.image}
                   description={
                     <>
@@ -61,9 +64,10 @@ function Projects() {
                     </>
                   }
                 />
-              </Col>
-            ))}
-          </Row>
+              </div>
+              );
+            })}
+          </div>
         </Container>
       </section>
     </main>
