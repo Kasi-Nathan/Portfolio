@@ -28,3 +28,12 @@ yarn-error.log*
 Server/node_modules
 Server/config.js
 PROJECT_REPORT.md
+# Validation artifacts
+/validation/screenshots/
+/validation-tests.log
+
+# Legacy documentation images
+/Images/readme-img.png
+/Images/readme-img1.png
+
+src/components/Home/file.jpe
