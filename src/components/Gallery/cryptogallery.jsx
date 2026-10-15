@@ -17,8 +17,11 @@ function CryptoGallery() {
 
   return (
     <>
-      <div className="container py-5">
-        <h2 className="text-center mb-5 fw-bold" style={{color:'rgb(218, 100, 254)', paddingTop:'30px'}}>Project Screenshots</h2>
+      <main className="gallery-page container py-5">
+          <header className="gallery-page-heading">
+            <span className="gallery-page-kicker">Archive / Market Systems</span>
+            <h1>Project Screenshots</h1>
+          </header>
         <div className="row g-4">
           {images.map((src, index) => (
             <div
@@ -26,23 +29,20 @@ function CryptoGallery() {
               key={index}
               data-aos="zoom-in-up"
             >
-              <img
-                src={src}
-                alt={`screenshot-${index}`}
-                className="img-fluid rounded shadow gallery-image"
-                onClick={() => setSelectedImage(src)}
-                style={{ cursor: 'pointer' }}
-              />
+                <button className="gallery-image-trigger" type="button" onClick={() => setSelectedImage(src)} aria-label={`Open cryptocurrency project screenshot ${index + 1}`}>
+                  <img src={src} alt={`Cryptocurrency project screenshot ${index + 1}`} className="gallery-image" />
+                  <span className="gallery-image-index">FRAME / 0{index + 1}</span>
+                </button>
             </div>
           ))}
         </div>
-      </div>
+      </main>
 
       {/* Lightbox Modal */}
       {selectedImage && (
-        <div className="lightbox" onClick={() => setSelectedImage(null)}>
-          <img src={selectedImage} alt="Zoomed" className="lightbox-img" />
-          <button className="close-btn" onClick={() => setSelectedImage(null)}>×</button>
+          <div className="lightbox" role="dialog" aria-modal="true" aria-label="Screenshot preview" onClick={() => setSelectedImage(null)}>
+            <img src={selectedImage} alt="Enlarged cryptocurrency project screenshot" className="lightbox-img" />
+            <button className="close-btn" type="button" aria-label="Close screenshot preview" autoFocus onClick={() => setSelectedImage(null)}>×</button>
         </div>
       )}
     </>

@@ -3,7 +3,7 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { CgGitFork } from "react-icons/cg";
 import {
   AiFillStar,
@@ -35,21 +35,13 @@ function NavBar() {
       className={navColour ? "sticky" : "navbar"}
     >
       <Container>
-      <Navbar.Brand href="/" aria-label="Go to home" className="d-flex align-items-center">
-  <div className="logo">
-    <svg width="120" height="50" viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg">
-      <rect width="220" height="100" fill="transparent"/>
-      <g transform="translate(20,20)">
-        <polygon points="20,0 40,10 40,30 20,40 0,30 0,10" fill="none" stroke="rgb(218, 100, 254)" stroke-width="2"/>
-        <circle cx="20" cy="20" r="3" fill="rgb(218, 100, 254)" />
-        <line x1="20" y1="0" x2="20" y2="17" stroke="rgb(218, 100, 254)" stroke-width="1.5" />
-        <line x1="20" y1="23" x2="20" y2="40" stroke="rgb(218, 100, 254)" stroke-width="1.5" />
-      </g>
-      <text x="80" y="55" font-family="Poppins, Segoe UI, sans-serif" font-weight="600"
-            font-size="48" fill="rgb(218, 100, 254)">KN</text>
-    </svg>
-  </div>
-</Navbar.Brand>
+      <Navbar.Brand as={Link} to="/" aria-label="Go to home" className="site-brand">
+        <span className="site-mark" aria-hidden="true">KN</span>
+        <span className="site-wordmark">
+          <strong>Kasi Nathan Murugan</strong>
+          <small>Portfolio / 03</small>
+        </span>
+      </Navbar.Brand>
 
         <Navbar.Toggle
           aria-controls="responsive-navbar-nav"
@@ -64,14 +56,14 @@ function NavBar() {
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto" defaultActiveKey="#home">
             <Nav.Item>
-              <Nav.Link as={Link} to="/" onClick={() => updateExpanded(false)}>
+              <Nav.Link as={NavLink} to="/" end onClick={() => updateExpanded(false)}>
                 <AiOutlineHome style={{ marginBottom: "2px" }} /> Home
               </Nav.Link>
             </Nav.Item>
 
             <Nav.Item>
               <Nav.Link
-                as={Link}
+                as={NavLink}
                 to="/about"
                 onClick={() => updateExpanded(false)}
               >
@@ -81,7 +73,7 @@ function NavBar() {
 
             <Nav.Item>
               <Nav.Link
-                as={Link}
+                as={NavLink}
                 to="/project"
                 onClick={() => updateExpanded(false)}
               >
@@ -102,6 +94,7 @@ function NavBar() {
               >
                 <CgGitFork style={{ fontSize: "1.2em" }} />{" "}
                 <AiFillStar style={{ fontSize: "1.1em" }} />
+                <span>GitHub</span>
               </Button>
             </Nav.Item>
           </Nav>

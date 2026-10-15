@@ -1,0 +1,6 @@
+.particle-planet { display: block; width: 100%; height: 100%; overflow: visible; --particle-light: var(--light, #c0e6f3); --particle-mid: var(--mid, #668eb3); --particle-dark: var(--dark, #152947); --particle-pale: #d9e9f4; }
+.particle-planet__surface, .particle-planet__front { filter: drop-shadow(0 0 1.5px var(--particle-light)); }
+.particle-planet__rear { opacity: .7; }
+.particle-starfield { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+@media (max-width: 767px) { .particle-planet__surface, .particle-planet__front { filter: none; } }
+@media (prefers-reduced-motion: reduce) { .particle-planet__surface, .particle-planet__front { filter: none; } }

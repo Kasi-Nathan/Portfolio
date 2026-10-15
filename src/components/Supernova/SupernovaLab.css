@@ -1,0 +1,412 @@
+.supernova-lab {
+  position: relative;
+  isolation: isolate;
+  min-height: 530vh;
+  overflow-x: clip;
+  color: #f3f2fb;
+  background: linear-gradient(180deg, rgba(5, 7, 18, .28), rgba(8, 7, 22, .46));
+}
+
+.supernova-scene-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  /* Cover the shared route's CSS stars: only the GPU dust should be visible
+     while the lab is ready. Its own static fallback still covers context loss. */
+  background: #070812;
+}
+
+.supernova-scene-canvas,
+.supernova-static-fallback {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.supernova-scene-canvas {
+  opacity: .94;
+}
+
+.supernova-static-fallback {
+  overflow: hidden;
+  opacity: 0;
+  background-color: #070812;
+  background-image:
+    radial-gradient(1px 1px at 17% 22%, rgba(221, 229, 255, .72) 70%, transparent),
+    radial-gradient(1px 1px at 74% 37%, rgba(190, 216, 255, .56) 70%, transparent),
+    radial-gradient(1px 1px at 43% 78%, rgba(218, 186, 255, .56) 70%, transparent),
+    radial-gradient(ellipse at 50% 60%, rgba(85, 110, 203, .13), transparent 38%),
+    radial-gradient(ellipse at 72% 76%, rgba(126, 61, 163, .16), transparent 35%);
+  background-size: 233px 211px, 317px 269px, 401px 347px, 100% 100%, 100% 100%;
+}
+
+.supernova-static-star {
+  position: absolute;
+  top: 61%;
+  left: 50%;
+  width: 34vmin;
+  height: 34vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 56% 43%, #d5ecf7, #a7d4ec 28%, #5c9ed0 72%, #1b4b85);
+  box-shadow: 0 0 24px 7px rgba(170, 219, 245, .72), 0 0 95px 36px rgba(68, 147, 255, .34), 0 0 190px 72px rgba(83, 82, 221, .15);
+  transform: translate(-50%, -50%);
+}
+
+.supernova-static-star::before,
+.supernova-static-star::after {
+  position: absolute;
+  content: "";
+  inset: -28%;
+  border-radius: 50%;
+  border: 1px solid rgba(151, 215, 255, .2);
+  box-shadow: 0 0 40px rgba(102, 186, 255, .28), inset 0 0 42px rgba(139, 211, 255, .16);
+}
+
+.supernova-static-star::after {
+  inset: -62%;
+  border-color: rgba(137, 156, 255, .1);
+  box-shadow: 0 0 80px rgba(93, 92, 220, .18), inset 0 0 70px rgba(88, 151, 255, .12);
+}
+
+.supernova-lab--unavailable .supernova-scene-canvas,
+.supernova-lab--lost .supernova-scene-canvas {
+  display: none;
+}
+
+.supernova-lab--unavailable .supernova-static-fallback,
+.supernova-lab--lost .supernova-static-fallback {
+  opacity: 1;
+}
+
+.supernova-lab-content {
+  position: relative;
+  z-index: 1;
+}
+
+.supernova-stage {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  align-items: center;
+  justify-items: center;
+  padding: 112px 24px 56px;
+}
+
+.supernova-stage-star {
+  position: relative;
+  align-items: start;
+  padding-top: clamp(104px, 13vh, 150px);
+  text-align: center;
+}
+
+.supernova-intro {
+  width: min(100%, 1040px);
+  text-shadow: 0 3px 30px rgba(4, 7, 19, .8);
+}
+
+.supernova-kicker {
+  margin: 0 0 1rem;
+  color: #9fdaf4;
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.supernova-intro h1 {
+  margin: 0;
+  color: #f5fbff;
+  font-family: "Segoe UI", "Helvetica Neue", sans-serif;
+  font-size: clamp(2.7rem, 4.8vw, 4.3rem);
+  font-weight: 300;
+  line-height: .92;
+  letter-spacing: .1em;
+  text-shadow: 0 0 24px rgba(123, 195, 255, .22);
+}
+
+.supernova-intro h1 span {
+  background: linear-gradient(100deg, #f7fcff 14%, #b9e9ff 60%, #b9b8ff);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.supernova-intro h1 b {
+  color: #8fd8f3;
+  font-size: .48em;
+  font-weight: 400;
+  letter-spacing: .08em;
+  vertical-align: .28em;
+}
+
+.supernova-classification {
+  margin: 1.15rem 0 0;
+  color: #d9eaf2;
+  font-size: .72rem;
+  font-weight: 600;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+
+.supernova-stage-readout {
+  display: inline-flex;
+  gap: .65rem;
+  align-items: center;
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  max-width: calc(100% - 36px);
+  margin: 0;
+  padding: .55rem .8rem;
+  color: #c5c9d8;
+  font-size: .78rem;
+  border: 1px solid rgba(178, 158, 220, .22);
+  border-radius: 999px;
+  background: rgba(7, 9, 23, .82);
+  text-shadow: none;
+  transform: translateX(-50%);
+}
+
+.supernova-stage-readout span {
+  color: #9b85c7;
+}
+
+.supernova-copy-panel {
+  width: min(100%, 720px);
+  padding: 2.2rem 2.35rem;
+  border: 1px solid rgba(165, 151, 213, .26);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(9, 12, 29, .88), rgba(16, 12, 32, .76));
+  box-shadow: inset 0 1px 0 rgba(230, 222, 255, .06), 0 24px 65px rgba(0, 0, 0, .25);
+  backdrop-filter: blur(10px);
+}
+
+.supernova-stage-explosion .supernova-copy-panel {
+  width: min(100%, 520px);
+  justify-self: end;
+  align-self: end;
+  opacity: var(--supernova-event-reveal, 1);
+  background: linear-gradient(135deg, rgba(9, 12, 29, .95), rgba(16, 12, 32, .9));
+  transform: translateY(var(--supernova-event-offset, 0px));
+}
+
+.supernova-copy-panel h2 {
+  margin: 0 0 .8rem;
+  color: #f3f1fa;
+  font-size: 2.4rem;
+  font-weight: 600;
+  line-height: 1.16;
+}
+
+.supernova-copy-panel > p:last-child {
+  max-width: 62ch;
+  margin: 0;
+  color: #c5c1d1;
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.supernova-stage-dust {
+  min-height: 150vh;
+  padding-top: 130px;
+  padding-bottom: 130px;
+}
+
+.supernova-dust-content {
+  display: grid;
+  width: min(100%, 1060px);
+  gap: 1.4rem;
+  justify-items: center;
+  opacity: var(--supernova-dust-reveal, 1);
+  transform: translateY(var(--supernova-dust-offset, 0px));
+}
+
+.supernova-lab--unavailable .supernova-stage-explosion .supernova-copy-panel,
+.supernova-lab--lost .supernova-stage-explosion .supernova-copy-panel,
+.supernova-lab--unavailable .supernova-dust-content,
+.supernova-lab--lost .supernova-dust-content {
+  opacity: 1;
+  transform: none;
+}
+
+.supernova-placeholder-grid {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .9rem;
+}
+
+.supernova-placeholder-card {
+  min-width: 0;
+  padding: 1.35rem;
+  border: 1px solid rgba(165, 151, 213, .2);
+  border-radius: 10px;
+  background: rgba(8, 11, 27, .82);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .18);
+  backdrop-filter: blur(8px);
+}
+
+.supernova-placeholder-card span {
+  color: #93d6ea;
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.supernova-placeholder-card h3 {
+  margin: .8rem 0 .4rem;
+  color: #f1ecf8;
+  font-size: 1.25rem;
+}
+
+.supernova-placeholder-card p {
+  margin: 0;
+  color: #bdb7cb;
+  font-size: .9rem;
+  line-height: 1.65;
+}
+
+.supernova-stage-nebula {
+  min-height: 180vh;
+  align-items: start;
+  padding-top: clamp(10rem, 24vh, 18rem);
+}
+
+.supernova-nebula-panel {
+  width: min(100%, 500px);
+  justify-self: end;
+  border-color: rgba(165, 123, 219, .36);
+  background: linear-gradient(135deg, rgba(16, 11, 37, .91), rgba(8, 17, 37, .86));
+  box-shadow: inset 0 1px 0 rgba(230, 222, 255, .08), 0 0 55px rgba(106, 90, 203, .1), 0 24px 65px rgba(0, 0, 0, .25);
+}
+
+.supernova-nebula-panel .supernova-kicker {
+  color: #bda3ef;
+}
+
+.supernova-fallback-note {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 2;
+  max-width: calc(100% - 2rem);
+  margin: 0;
+  padding: .6rem .8rem;
+  color: #e4e0ed;
+  font-size: .78rem;
+  border: 1px solid rgba(177, 158, 220, .28);
+  border-radius: 8px;
+  background: rgba(7, 9, 23, .88);
+}
+
+@media (max-width: 991px) {
+  .supernova-intro h1 {
+    font-size: clamp(2.5rem, 5.6vw, 3.7rem);
+  }
+
+  .supernova-placeholder-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .supernova-placeholder-card:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .supernova-stage {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .supernova-stage-star {
+    padding-top: 112px;
+  }
+
+  .supernova-static-star {
+    width: 42vmin;
+    height: 42vmin;
+  }
+
+  .supernova-intro h1 {
+    font-size: clamp(2rem, 8.5vw, 3.1rem);
+    letter-spacing: .08em;
+  }
+
+  .supernova-intro h1 b {
+    display: inline;
+    margin-top: 0;
+    font-size: .42em;
+    letter-spacing: .08em;
+    vertical-align: .28em;
+  }
+
+  .supernova-classification {
+    font-size: .61rem;
+    letter-spacing: .13em;
+  }
+
+  .supernova-copy-panel {
+    padding: 1.5rem;
+    backdrop-filter: blur(5px);
+  }
+
+  .supernova-copy-panel h2 {
+    font-size: 1.85rem;
+  }
+
+  .supernova-nebula-panel {
+    justify-self: center;
+  }
+
+  .supernova-stage-explosion .supernova-copy-panel {
+    justify-self: center;
+  }
+
+  .supernova-placeholder-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .supernova-placeholder-card:last-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-height: 600px) {
+  .supernova-stage-star {
+    padding-top: 86px;
+  }
+
+  .supernova-intro h1 {
+    font-size: clamp(1.8rem, 5vh, 2.5rem);
+  }
+
+  .supernova-intro .supernova-kicker {
+    margin-bottom: .5rem;
+  }
+
+  .supernova-classification {
+    margin-top: .6rem;
+    font-size: .58rem;
+  }
+
+  .supernova-stage-readout {
+    bottom: .75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .supernova-lab {
+    scroll-behavior: auto;
+  }
+
+  .supernova-stage-explosion .supernova-copy-panel,
+  .supernova-dust-content {
+    opacity: 1;
+    transform: none;
+  }
+}

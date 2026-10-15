@@ -1,34 +1,372 @@
-:root { --space-surface: rgba(12,13,26,.96); --space-border: rgba(169,117,211,.27); --space-cyan: #86cfdf; }
-.App { position: relative; z-index: 1; }
-.portfolio-home, .about-page, .projects-page { overflow: clip; }
-.portfolio-home .featured-work-card, .projects-page .project-card-view {
-  background: var(--space-surface) !important;
-  border: 1px solid var(--space-border) !important;
-  box-shadow: inset 0 1px 0 rgba(208,182,239,.035), 0 10px 32px rgba(0,0,0,.18) !important;
+:root {
+  --space-void: #05070d;
+  --space-night: #080c15;
+  --space-surface: rgba(10, 15, 25, .92);
+  --space-surface-raised: rgba(14, 21, 34, .94);
+  --space-line: rgba(147, 174, 207, .17);
+  --space-line-bright: rgba(125, 211, 229, .38);
+  --space-text: #eef3f8;
+  --space-muted: #a2b0c2;
+  --space-dim: #718095;
+  --space-cyan: #86d8e8;
+  --space-blue: #8db8ef;
+  --space-violet: #b59aea;
+  --space-magenta: #e495cf;
+  --space-surface-shadow: 0 18px 55px rgba(0, 0, 0, .32);
+  --space-display: "Space Grotesk", sans-serif;
+  --space-mono: "DM Mono", monospace;
 }
-.portfolio-home .featured-work-card:hover, .projects-page .project-card-view:hover,
-.portfolio-home .featured-work-card:focus-within, .projects-page .project-card-view:focus-within {
-  border-color: rgba(115,193,214,.5) !important;
-  box-shadow: 0 0 22px rgba(128,80,184,.12), 0 12px 28px rgba(0,0,0,.2) !important;
-  transform: translateY(-2px) !important;
+
+html {
+  background: var(--space-void);
+  scroll-behavior: smooth;
 }
-.portfolio-home .home-build-card, .about-education-card, .about-interest, .about-tech-card,
-.portfolio-home .contact-cta-section { background: var(--space-surface); border-color: var(--space-border); }
-.home-hero-copy, .about-hero-row > div:first-child { position: relative; }
-.home-hero-copy::before, .about-hero-row > div:first-child::before { content: ""; position: absolute; inset: -30px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse,rgba(7,8,18,.82),transparent 72%); }
-.App :is(a,button,summary,[tabindex]):focus-visible { outline: 2px solid var(--space-cyan) !important; outline-offset: 5px; }
-@media (hover: none), (max-width: 767px) {
-  .portfolio-home .featured-work-card:hover, .projects-page .project-card-view:hover { transform: none !important; }
-  .about-education-card, .home-portrait-card { backdrop-filter: none; }
+
+body {
+  background: var(--space-void);
+  color: var(--space-text);
+  font-family: var(--space-display) !important;
 }
-/* Keep content visible even if a motion preference changes after AOS initializes. */
-@media (prefers-reduced-motion: reduce), (max-width: 767px) {
-  .App [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+
+::selection {
+  color: #071019;
+  background: var(--space-cyan);
 }
+
+#root .App {
+  position: relative;
+  z-index: 1;
+  color: var(--space-text);
+}
+
+#root .App :is(h1, h2, h3, h4, p) {
+  letter-spacing: 0;
+}
+
+#root .App :is(a, button, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--space-cyan) !important;
+  outline-offset: 4px;
+}
+
+#root .App a {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+#root .App .navbar,
+#root .App .navbar.sticky {
+  z-index: 1030;
+  min-height: 76px;
+  padding: .6rem clamp(18px, 4vw, 64px) !important;
+  border-bottom: 1px solid rgba(146, 171, 201, .14);
+  background: rgba(5, 8, 15, .8) !important;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, .16) !important;
+  backdrop-filter: blur(18px) saturate(135%);
+  transition: background-color .25s ease, border-color .25s ease !important;
+}
+
+#root .App .navbar > .container {
+  max-width: 1440px;
+}
+
+#root .App .container {
+  max-width: 1240px;
+}
+
+#root .App :is(.home-section-kicker, .about-kicker, .projects-kicker, .supernova-kicker) {
+  color: #92cde0;
+  font-family: var(--space-mono);
+  font-size: .66rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+#root .App .home-section-kicker::before,
+#root .App .about-kicker::before,
+#root .App .projects-kicker::before {
+  display: inline-block;
+  width: 20px;
+  height: 1px;
+  margin: 0 .65rem .2rem 0;
+  background: linear-gradient(90deg, var(--space-cyan), transparent);
+  content: "";
+}
+
+#root .App :is(.home-section-heading, .about-section-heading) > div,
+#root .App :is(.home-section-heading, .about-section-heading) > p {
+  min-width: 0;
+}
+
+#root .App .btn {
+  font-family: var(--space-display);
+  transition: transform .2s ease, color .2s ease, border-color .2s ease, background-color .2s ease, box-shadow .2s ease !important;
+}
+
+#root .App .btn-primary {
+  min-height: 44px;
+  color: var(--space-text) !important;
+  border: 1px solid rgba(146, 198, 224, .38) !important;
+  border-radius: 2px !important;
+  background: linear-gradient(120deg, rgba(49, 96, 128, .46), rgba(76, 50, 112, .42)) !important;
+  box-shadow: inset 0 1px 0 rgba(228, 245, 255, .08), 0 10px 26px rgba(0, 0, 0, .2) !important;
+}
+
+#root .App .btn-primary:hover {
+  border-color: rgba(134, 216, 232, .72) !important;
+  background: linear-gradient(120deg, rgba(59, 120, 153, .52), rgba(91, 61, 135, .5)) !important;
+  box-shadow: 0 0 26px rgba(111, 194, 219, .12), 0 12px 28px rgba(0, 0, 0, .27) !important;
+  transform: translateY(-2px);
+}
+
+#root .App :is(.home-primary-action, .featured-work-btn, .about-primary-action) {
+  border-color: rgba(154, 139, 214, .42) !important;
+  background: linear-gradient(115deg, rgba(101, 73, 152, .8), rgba(49, 105, 142, .76)) !important;
+}
+
+#root .App :is(.home-secondary-action, .about-secondary-action) {
+  border-color: var(--space-line) !important;
+  border-radius: 2px !important;
+  background: rgba(255, 255, 255, .025) !important;
+}
+
+#root .App :is(.home-quick-about, .about-story-section, .about-stack-section) {
+  border-top-color: rgba(146, 171, 201, .14);
+}
+
+#root .App .navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .35rem 0;
+  color: var(--space-text) !important;
+  text-decoration: none;
+}
+
+.site-mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  color: var(--space-cyan);
+  font-family: var(--space-mono);
+  font-size: .78rem;
+  border: 1px solid rgba(134, 216, 232, .4);
+  background: linear-gradient(145deg, rgba(134, 216, 232, .12), rgba(181, 154, 234, .06));
+  box-shadow: inset 0 0 16px rgba(134, 216, 232, .05), 0 0 20px rgba(134, 216, 232, .06);
+}
+
+.site-wordmark {
+  display: grid;
+  gap: .1rem;
+  line-height: 1.15;
+}
+
+.site-wordmark strong {
+  color: var(--space-text);
+  font-size: .9rem;
+  font-weight: 600;
+}
+
+.site-wordmark small {
+  color: var(--space-dim);
+  font-family: var(--space-mono);
+  font-size: .56rem;
+  text-transform: uppercase;
+}
+
+#root .App .navbar-nav {
+  align-items: center;
+  gap: .35rem;
+}
+
+#root .App .navbar-nav .nav-item {
+  margin-left: 0;
+  padding-top: 0 !important;
+}
+
+#root .App .navbar-nav .nav-link {
+  position: relative;
+  padding: .68rem .9rem !important;
+  color: #aeb9c9 !important;
+  font-family: var(--space-mono);
+  font-size: .68rem;
+  text-transform: uppercase;
+  transition: color .2s ease !important;
+}
+
+#root .App .navbar-nav .nav-link::after {
+  position: absolute;
+  right: .9rem;
+  bottom: .38rem;
+  left: .9rem;
+  display: block;
+  width: auto;
+  height: 1px;
+  border-radius: 0;
+  background: linear-gradient(90deg, var(--space-cyan), var(--space-violet));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .2s ease;
+  content: "";
+}
+
+#root .App .navbar-nav .nav-link:hover,
+#root .App .navbar-nav .nav-link.active {
+  color: var(--space-text) !important;
+}
+
+#root .App .navbar-nav .nav-link:hover::after,
+#root .App .navbar-nav .nav-link.active::after {
+  transform: scaleX(1);
+}
+
+#root .App .navbar .fork-btn-inner {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  gap: .45rem;
+  padding: .45rem .8rem !important;
+  color: #dce6ef !important;
+  font-family: var(--space-mono);
+  font-size: .66rem;
+  border: 1px solid rgba(146, 171, 201, .2) !important;
+  border-radius: 2px !important;
+  background: rgba(255, 255, 255, .035) !important;
+  box-shadow: none !important;
+}
+
+#root .App .navbar .fork-btn-inner:hover {
+  border-color: var(--space-line-bright) !important;
+  background: rgba(134, 216, 232, .08) !important;
+  transform: none !important;
+}
+
+#root .App .navbar-toggler {
+  padding: .45rem;
+  border: 1px solid var(--space-line) !important;
+  border-radius: 2px;
+}
+
+#root .App .navbar-toggler span {
+  width: 22px !important;
+  height: 1px !important;
+  margin: 5px 0 !important;
+  background: var(--space-cyan) !important;
+}
+
+#root .App .footer {
+  position: relative;
+  z-index: 1;
+  padding: 24px clamp(18px, 4vw, 64px) !important;
+  border-top: 1px solid var(--space-line);
+  background: rgba(5, 7, 13, .78) !important;
+}
+
+#root .App .footer > .row {
+  max-width: 1440px;
+  align-items: center;
+  margin: 0 auto;
+}
+
+#root .App .footer h3 {
+  margin: .35rem 0 !important;
+  color: #9eacbd !important;
+  font-family: var(--space-mono);
+  font-size: .64rem;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+#root .App .footer-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+#root .App .footer-icons a {
+  color: #93a5bb !important;
+  transition: color .18s ease, transform .18s ease;
+}
+
+#root .App .footer-icons a:hover {
+  color: var(--space-cyan) !important;
+  transform: translateY(-2px);
+}
+
+#root .App .footer-icons .social-icons {
+  padding-right: 0;
+}
+
+#root .App .footer .row > [class*="col-"] {
+  padding-inline: .6rem;
+}
+
+#root .App .about-education-card,
+#root .App .about-interest,
+#root .App .about-tech-card,
+#root .App .home-build-card,
+#root .App .contact-cta-section {
+  border-color: var(--space-line);
+  background-color: var(--space-surface);
+}
+
+#root .App .featured-work-card,
+#root .App .project-card-view {
+  border: 1px solid var(--space-line) !important;
+  background: linear-gradient(145deg, rgba(13, 20, 32, .97), rgba(8, 12, 21, .97)) !important;
+  box-shadow: inset 0 1px 0 rgba(220, 235, 255, .035), 0 16px 42px rgba(0, 0, 0, .25) !important;
+}
+
+#root .App .featured-work-card:hover,
+#root .App .featured-work-card:focus-within,
+#root .App .project-card-view:hover,
+#root .App .project-card-view:focus-within {
+  border-color: var(--space-line-bright) !important;
+  box-shadow: 0 0 28px rgba(103, 174, 221, .1), 0 20px 48px rgba(0, 0, 0, .34) !important;
+  transform: translateY(-3px) !important;
+}
+
+@media (max-width: 767px) {
+  #root .App .navbar,
+  #root .App .navbar.sticky {
+    padding: .55rem 16px !important;
+  }
+
+  #root .App .navbar-collapse {
+    margin-top: .7rem;
+    padding: .55rem 0 .8rem;
+    border-top: 1px solid var(--space-line);
+  }
+
+  #root .App .navbar-nav {
+    align-items: stretch;
+  }
+
+  #root .App .navbar-nav .nav-link {
+    padding: .7rem .4rem !important;
+  }
+
+  #root .App .navbar-nav .nav-link::after {
+    right: auto;
+    left: .4rem;
+    width: 36px;
+  }
+
+  #root .App .footer-copywright,
+  #root .App .footer-body {
+    text-align: center !important;
+  }
+
+  #root .App .container {
+    padding-inline: 20px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .App *, .App *::before, .App *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
-  .App .featured-work-card:hover, .App .project-card-view:hover,
-  .App .featured-work-card:focus-within, .App .project-card-view:focus-within, .App .about-tech-card:hover,
-  .App .about-tech-card:focus-visible, .App .btn:hover, .App .gallery-image:hover,
-  .App .project-card-view:hover img, .App .featured-work-card:hover img { transform: none !important; }
+  html { scroll-behavior: auto; }
+  #root .App [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  #root .App *,
+  #root .App *::before,
+  #root .App *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+  #root .App :is(.featured-work-card:hover, .project-card-view:hover, .about-tech-card:hover, .home-build-card:hover, .btn:hover) { transform: none !important; }
 }

@@ -1,67 +1,21 @@
 import React from "react";
-import { Button, Container, Row, Col } from "react-bootstrap";
-import { Link } from "react-router-dom";
-import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
-
 import Home2 from "./Home2";
-import portrait from "../../Assets/me.png";
-import settings from "../../data/settings.json";
 import "./Home.css";
+import SupernovaHome from "../Supernova/SupernovaHome";
 
 function Home() {
-
   return (
     <main className="portfolio-home">
-      <section className="home-hero" id="home" aria-labelledby="home-title">
-        <Container className="home-hero-container">
-          <Row className="align-items-center home-hero-row">
-            <Col lg={7} className="home-hero-copy" data-aos="fade-up">
-              <div className="home-eyebrow">
-                <span className="home-status-dot" aria-hidden="true" />
-                Computer Science + Philosophy student
-              </div>
-              <h1 id="home-title">
-                I build thoughtful digital products where
-                <span> code meets intelligence.</span>
-              </h1>
-              <p className="home-hero-lead">
-                I’m Kasi Nathan Murugan, a software developer focused on clean frontend experiences, AI-assisted workflows, and practical machine learning.
-              </p>
-              <div className="home-hero-actions">
-                <Button as={Link} to="/project" className="home-primary-action">
-                  Explore my work <AiOutlineArrowRight />
-                </Button>
-                <Button href={settings.resumeUrl} target="_blank" rel="noreferrer" className="home-secondary-action">
-                  <AiOutlineDownload /> Resume
-                </Button>
-              </div>
-              <div className="home-capabilities" aria-label="Core capabilities">
-                <span>Frontend development</span>
-                <span>AI integration</span>
-                <span>Applied ML</span>
-              </div>
-            </Col>
-            <Col lg={5} className="home-portrait-col" data-aos="fade-left" data-aos-delay="150">
-              <div className="home-portrait-frame">
-                <div className="home-portrait-ring" aria-hidden="true" />
-                <div className="home-portrait-orbit" aria-hidden="true" />
-                <img src={portrait} alt="Kasi Nathan Murugan" />
-                <div className="home-portrait-card home-portrait-card-top">
-                  <span>Focus</span>
-                  Human-centered software
-                </div>
-                <div className="home-portrait-card home-portrait-card-bottom">
-                  <span>Based in</span>
-                  Germany
-                </div>
-              </div>
-            </Col>
-          </Row>
-        </Container>
-        <a className="home-scroll-cue" href="#featured-work" aria-label="Scroll to featured work">
-          <span /> Scroll to explore
-        </a>
-      </section>
+      <SupernovaHome>
+        <section className="home-intro" id="home" aria-labelledby="home-title">
+          <div className="home-intro-copy">
+            <p className="home-intro-kicker">From CYGNUS-01 · A new orbit</p>
+            <h1 id="home-title" tabIndex={-1}>KASI<br /><span>NATHAN.</span></h1>
+            <p className="home-intro-subtitle">Developer · Creative Technologist</p>
+          </div>
+          <span className="home-intro-planet-fallback" aria-hidden="true" />
+        </section>
+      </SupernovaHome>
       <Home2 />
     </main>
   );

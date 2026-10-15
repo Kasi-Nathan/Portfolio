@@ -1,5 +1,6 @@
 import React from "react";
 import { AiOutlineCode, AiOutlineExperiment, AiOutlineBulb } from "react-icons/ai";
+import education from "../../data/education";
 
 const interests = [
   { icon: <AiOutlineCode />, title: "Modern web development", text: "Clear, responsive interfaces built around real user needs." },
@@ -11,7 +12,7 @@ function AboutCard() {
   return (
     <div className="about-story-body">
       <p>
-        I’m <strong>Kasi Nathan Murugan</strong>, a Master’s student in Philosophy &amp; Computer Science at the University of Bayreuth, with a B.Tech in Information Technology. My interests span web development, AI-assisted systems, machine learning, and user-centered software.
+        I’m <strong>Kasi Nathan Murugan</strong>, pursuing an {education.masters.degree} at {education.masters.institution}, with a {education.bachelors.degree} from {education.bachelors.institution}. My interests span web development, AI-assisted systems, machine learning, and user-centered software.
       </p>
       <p>
         I enjoy building practical tools with clear interfaces and thoughtful interactions—especially projects that pair strong technical implementation with a meaningful user experience.
