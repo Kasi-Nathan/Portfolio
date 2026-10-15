@@ -48,23 +48,35 @@ function Home2() {
             </div>
             <p>A selection of products spanning AI-assisted planning, applied machine learning, and full-stack product development.</p>
           </div>
-          <Row className="featured-work-grid">
+          <div className="featured-work-grid">
             {featuredProjects.map((project, index) => (
-              <Col md={index === 0 ? 8 : 4} className="featured-work-col" key={project.id}>
-                <article className={`featured-work-card ${index === 0 ? "featured-work-card-primary" : ""}`}>
-                  {project.image && (
-                    <div className="featured-work-image"><img src={project.image} alt={`${project.title} preview`} /></div>
+              <article
+                className={`featured-work-card ${index === 0 ? "featured-work-card-primary" : ""}`}
+                key={project.id}
+              >
+                <div className="featured-work-image">
+                  {project.image ? (
+                    <img src={project.image} alt={`${project.title} preview`} />
+                  ) : (
+                    <div
+                      className="featured-work-image-fallback"
+                      role="img"
+                      aria-label={`${project.title} preview unavailable`}
+                    >
+                      <AiOutlineCode aria-hidden="true" />
+                      <span>Preview unavailable</span>
+                    </div>
                   )}
+                </div>
                   <div className="featured-work-body">
                     <span className="featured-work-number">0{index + 1}</span>
                     <h2>{project.title}</h2>
                     <p>{project.summary}</p>
                     <span className="featured-work-stack">{project.techStack}</span>
                   </div>
-                </article>
-              </Col>
+              </article>
             ))}
-          </Row>
+          </div>
           <Button as={Link} to="/project" className="featured-work-btn" aria-label="View all portfolio projects">
             View all projects <AiOutlineArrowRight />
           </Button>
