@@ -4,23 +4,25 @@ import { Link } from "react-router-dom";
 import { AiOutlineArrowRight, AiOutlineDownload } from "react-icons/ai";
 
 import Home2 from "./Home2";
+import "./Home.css";
+import SupernovaHome from "../Supernova/SupernovaHome";
 import portrait from "../../Assets/me.png";
 import settings from "../../data/settings.json";
-import "./Home.css";
 
 function Home() {
 
   return (
     <main className="portfolio-home">
+      <SupernovaHome>
       <section className="home-hero" id="home" aria-labelledby="home-title">
         <Container className="home-hero-container">
           <Row className="align-items-center home-hero-row">
-            <Col lg={7} className="home-hero-copy" data-aos="fade-up">
+            <Col lg={7} className="home-hero-copy">
               <div className="home-eyebrow">
                 <span className="home-status-dot" aria-hidden="true" />
                 Computer Science + Philosophy student
               </div>
-              <h1 id="home-title">
+              <h1 id="home-title" tabIndex={-1}>
                 I build thoughtful digital products where
                 <span> code meets intelligence.</span>
               </h1>
@@ -41,7 +43,7 @@ function Home() {
                 <span>Applied ML</span>
               </div>
             </Col>
-            <Col lg={5} className="home-portrait-col" data-aos="fade-left" data-aos-delay="150">
+            <Col lg={5} className="home-portrait-col">
               <div className="home-portrait-frame">
                 <div className="home-portrait-ring" aria-hidden="true" />
                 <div className="home-portrait-orbit" aria-hidden="true" />
@@ -62,6 +64,7 @@ function Home() {
           <span /> Scroll to explore
         </a>
       </section>
+      </SupernovaHome>
       <Home2 />
     </main>
   );

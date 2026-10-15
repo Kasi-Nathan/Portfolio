@@ -23,6 +23,10 @@ import ImageGallery from './components/Gallery/imagegallery.jsx';
 import BoneGallery from './components/Gallery/bonegallery.jsx'
 import CryptoGallery from './components/Gallery/cryptogallery.jsx'
 
+const SupernovaLab = process.env.NODE_ENV === "development"
+  ? React.lazy(() => import("./components/Supernova/SupernovaLab"))
+  : null;
+
 function App() {
   const [load, upadateLoad] = useState(true);
 
@@ -49,6 +53,16 @@ function App() {
           <Route path="/gallery" element={<ImageGallery />} />
           <Route path="/bonegallery" element={<BoneGallery />} />
           <Route path="/cryptogallery" element={<CryptoGallery />} />
+          {SupernovaLab && (
+            <Route
+              path="/supernova-lab"
+              element={(
+                <React.Suspense fallback={null}>
+                  <SupernovaLab />
+                </React.Suspense>
+              )}
+            />
+          )}
 
           <Route path="*" element={<Navigate to="/" />} />
           

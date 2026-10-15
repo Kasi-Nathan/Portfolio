@@ -1,0 +1,71 @@
+.portfolio-home { position: relative; isolation: isolate; }
+.home-supernova-layer { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; background: #070812; }
+.home-supernova-layer canvas, .home-supernova-fallback { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.home-supernova-layer canvas { opacity: 0; }
+.home-supernova-layer--ready canvas { opacity: .94; }
+.home-supernova-layer--ready .home-supernova-fallback { visibility: hidden; }
+.home-supernova-fallback { background: radial-gradient(1px 1px at 23px 57px, #a8b9dc 90%, transparent) 0 0 / 233px 211px, radial-gradient(ellipse at 90% 65%, #18203a, transparent 65%), #070812; }
+.home-supernova-fallback::after { content: ""; position: absolute; inset: 0; opacity: var(--nebula-reveal, 0); background: radial-gradient(ellipse at 76% 44%, rgba(66,172,207,.42), transparent 32%), radial-gradient(ellipse at 57% 62%, rgba(137,65,192,.5), transparent 39%), radial-gradient(ellipse at 65% 51%, rgba(7,8,18,.8), transparent 14%); }
+.home-supernova-fallback span { position: absolute; top: 61%; left: 50%; width: 34vmin; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); opacity: var(--opening-star-opacity, 1); background: radial-gradient(circle at 56% 43%, #d5ecf7, #a7d4ec 28%, #5c9ed0 72%, #1b4b85); box-shadow: 0 0 24px 7px #aadbF5aa, 0 0 95px 36px #4493ff55; }
+.home-supernova-journey { position: relative; z-index: 1; --hero-reveal: 0; --hero-offset: 24px; --designation-opacity: 1; }
+/* One occupied stage, followed by its bounded sticky travel; no second intro.
+   Tall mobile heroes retain their natural height and scroll normally on release. */
+.home-supernova-journey::after { content: ""; display: block; height: 85vh; height: 85svh; max-height: 900px; }
+.home-supernova-stage { position: sticky; top: 0; }
+.home-stellar-opening { position: absolute; inset: 0 0 auto; z-index: 2; height: 100vh; height: 100svh; padding: clamp(105px, 14svh, 150px) 24px 72px; text-align: center; pointer-events: none; }
+.home-stellar-designation { opacity: var(--designation-opacity); }
+.home-stellar-kicker, .home-stellar-classification { color: #aebed1; font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
+.home-stellar-name { margin: .65rem 0; font-size: clamp(2.2rem, 4.6vw, 4rem); line-height: 1.12; letter-spacing: .12em; font-weight: 300; color: #e2eef8; }
+.home-stellar-name span { color: #93c8ea; font-weight: 200; }
+.home-stellar-skip { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #c0d4e7; font-size: .8rem; text-decoration: none; white-space: nowrap; padding: 12px; border-radius: 4px; background: #070812b8; pointer-events: auto; opacity: var(--designation-opacity); }
+.home-supernova-journey[data-hero-interactive="true"] .home-stellar-skip { visibility: hidden; }
+.home-stellar-skip:focus-visible { opacity: 1; }
+.home-stellar-skip:hover { color: #fff; }
+.home-stellar-skip:focus-visible { outline: 2px solid #8fd5ed; outline-offset: 4px; }
+/* The existing cards/portrait remain protected; uncovered margins reveal dust.
+   Opacity never removes content from the accessibility tree or tab sequence. */
+.portfolio-home .home-hero { z-index: 1; scroll-margin-top: 72px; background: transparent; opacity: var(--hero-reveal, 1); transform: translateY(var(--hero-offset, 0px)); pointer-events: none; }
+.home-supernova-journey[data-hero-interactive="true"] .home-hero { pointer-events: auto; }
+.portfolio-home .home-hero:focus-within { opacity: 1; transform: none; pointer-events: auto; }
+.portfolio-home .home-hero::before { background: radial-gradient(ellipse at 28% 46%, rgba(7,8,18,.85), transparent 68%); }
+.portfolio-home .home-about-section { position: relative; z-index: 1; background: transparent; }
+.portfolio-home .home-section-heading, .portfolio-home .home-centered-heading, .portfolio-home .home-build-intro { text-shadow: 0 2px 14px #070812; }
+/* Keep the existing contact content protected while the cloud fills the
+   surrounding viewport; no separate finale section or renderer. */
+.portfolio-home .home-about-section .contact-cta-section { position: relative; width: min(48%, 35rem); margin: clamp(40px, 6vw, 88px) auto 0 0; padding: clamp(26px, 3vw, 44px); text-align: left; background: rgba(9,11,24,.96); border-color: rgba(150,180,215,.23); box-shadow: 0 14px 40px rgba(0,0,0,.2); }
+.portfolio-home .contact-cta-section h2 { font-size: clamp(1.8rem, 2.7vw, 2.5rem); line-height: 1.16; text-wrap: balance; }
+.portfolio-home .contact-cta-section p { margin-inline: 0; font-size: 1rem; line-height: 1.75; }
+.portfolio-home .contact-cta-actions { justify-content: flex-start; }
+.portfolio-home .contact-cta-actions .btn { min-height: 46px; }
+.home-supernova-journey[data-fallback="true"]::after { display: none; }
+.home-supernova-journey[data-fallback="true"] .home-supernova-stage { position: relative; }
+.home-supernova-journey[data-fallback="true"] .home-stellar-opening { display: none; }
+.home-supernova-journey[data-fallback="true"] .home-hero { opacity: 1; transform: none; pointer-events: auto; }
+@media (max-width: 767px) {
+  .home-stellar-opening { padding-inline: 16px; }
+  .home-stellar-name { font-size: clamp(2rem, 8vw, 3.5rem); letter-spacing: .09em; }
+  .home-stellar-classification { max-width: 28em; margin: .75rem auto; font-size: .6rem; line-height: 1.7; }
+  .home-supernova-fallback span { width: 42vmin; }
+  .home-supernova-journey::after { height: 65svh; }
+}
+@media (max-width: 991px) {
+  .portfolio-home .home-about-section .contact-cta-section { width: min(100%, 38rem); margin: clamp(96px, 20svh, 160px) auto 0; padding: clamp(24px, 4vw, 36px); text-align: center; }
+  .portfolio-home .contact-cta-actions { justify-content: center; }
+  .home-supernova-fallback::after { background: radial-gradient(ellipse at 64% 20%, rgba(66,172,207,.42), transparent 30%), radial-gradient(ellipse at 32% 30%, rgba(137,65,192,.5), transparent 35%), radial-gradient(ellipse at 48% 26%, rgba(7,8,18,.8), transparent 12%); }
+}
+@media (max-width: 380px) {
+  .portfolio-home .contact-cta-actions .btn { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-supernova-journey::after { display: none; }
+  .home-supernova-stage { position: relative; }
+  .home-stellar-opening { display: none; }
+  .portfolio-home .home-hero { opacity: 1; transform: none; pointer-events: auto; }
+  .home-supernova-fallback span { display: none; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .home-stellar-opening { padding-top: 85px; }
+  .home-stellar-kicker, .home-stellar-classification { display: none; }
+  .home-stellar-name { font-size: 1.7rem; }
+  .home-stellar-skip { bottom: 8px; }
+}

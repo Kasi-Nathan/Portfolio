@@ -121,3 +121,20 @@
   .home-portrait-orbit { display: none; }
   .home-portrait-card { position: static; min-width: 0; padding: .7rem; font-size: .75rem; backdrop-filter: none; }
 }
+
+/* Shared homepage rhythm; content, card structure, and cinematic timing stay intact. */
+.portfolio-home .home-hero h1 { font-size: clamp(2.05rem, 3.8vw, 3.65rem); line-height: 1.13; letter-spacing: -.035em; text-wrap: balance; }
+.portfolio-home .home-hero-lead { max-width: 58ch; margin-top: 1.5rem; font-size: clamp(1rem, 1.35vw, 1.15rem); line-height: 1.75; }
+.portfolio-home .home-section-heading h2, .portfolio-home .home-centered-heading { font-size: clamp(1.9rem, 3.2vw, 3rem); line-height: 1.16; letter-spacing: -.03em; text-wrap: balance; }
+.portfolio-home .home-section-heading { gap: clamp(1.25rem, 3vw, 2.5rem); margin-bottom: clamp(24px, 3vw, 40px); }
+.portfolio-home .home-section-heading p, .portfolio-home .home-build-intro { color: #b2acbf; line-height: 1.75; }
+.portfolio-home .home-build-intro { max-width: 65ch; margin: 1.1rem auto 1.8rem; }
+.portfolio-home .featured-work-section { padding-bottom: clamp(36px, 4.5vw, 64px); }
+.portfolio-home .home-quick-about { padding-block: clamp(36px, 4.5vw, 64px); border-top-color: rgba(158,184,219,.12); }
+.portfolio-home .home-section-heading > *, .portfolio-home .home-hero-copy { min-width: 0; }
+.portfolio-home :is(h1, h2, p, .featured-work-stack) { overflow-wrap: break-word; }
+@media (max-width: 767px) {
+  .portfolio-home .home-hero h1 { font-size: clamp(2rem, 7.8vw, 2.8rem); }
+  .portfolio-home .home-hero-actions .btn { min-height: 48px; }
+  .portfolio-home .home-hero-copy { padding-inline: 16px !important; }
+}
