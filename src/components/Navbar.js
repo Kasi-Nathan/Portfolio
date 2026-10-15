@@ -63,13 +63,13 @@ function NavBar() {
         </Navbar.Toggle>
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto" defaultActiveKey="#home">
-            <Nav.Item data-aos="fade-down" data-aos-duration="1500" data-aos-delay="100">
+            <Nav.Item>
               <Nav.Link as={Link} to="/" onClick={() => updateExpanded(false)}>
                 <AiOutlineHome style={{ marginBottom: "2px" }} /> Home
               </Nav.Link>
             </Nav.Item>
 
-            <Nav.Item data-aos="fade-down" data-aos-duration="1500" data-aos-delay="200">
+            <Nav.Item>
               <Nav.Link
                 as={Link}
                 to="/about"
@@ -79,7 +79,7 @@ function NavBar() {
               </Nav.Link>
             </Nav.Item>
 
-            <Nav.Item data-aos="fade-down" data-aos-duration="1500" data-aos-delay="300">
+            <Nav.Item>
               <Nav.Link
                 as={Link}
                 to="/project"

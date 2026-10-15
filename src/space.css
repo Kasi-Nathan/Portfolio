@@ -1,0 +1,34 @@
+:root { --space-surface: rgba(12,13,26,.96); --space-border: rgba(169,117,211,.27); --space-cyan: #86cfdf; }
+.App { position: relative; z-index: 1; }
+.portfolio-home, .about-page, .projects-page { overflow: clip; }
+.portfolio-home .featured-work-card, .projects-page .project-card-view {
+  background: var(--space-surface) !important;
+  border: 1px solid var(--space-border) !important;
+  box-shadow: inset 0 1px 0 rgba(208,182,239,.035), 0 10px 32px rgba(0,0,0,.18) !important;
+}
+.portfolio-home .featured-work-card:hover, .projects-page .project-card-view:hover,
+.portfolio-home .featured-work-card:focus-within, .projects-page .project-card-view:focus-within {
+  border-color: rgba(115,193,214,.5) !important;
+  box-shadow: 0 0 22px rgba(128,80,184,.12), 0 12px 28px rgba(0,0,0,.2) !important;
+  transform: translateY(-2px) !important;
+}
+.portfolio-home .home-build-card, .about-education-card, .about-interest, .about-tech-card,
+.portfolio-home .contact-cta-section { background: var(--space-surface); border-color: var(--space-border); }
+.home-hero-copy, .about-hero-row > div:first-child { position: relative; }
+.home-hero-copy::before, .about-hero-row > div:first-child::before { content: ""; position: absolute; inset: -30px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse,rgba(7,8,18,.82),transparent 72%); }
+.App :is(a,button,summary,[tabindex]):focus-visible { outline: 2px solid var(--space-cyan) !important; outline-offset: 5px; }
+@media (hover: none), (max-width: 767px) {
+  .portfolio-home .featured-work-card:hover, .projects-page .project-card-view:hover { transform: none !important; }
+  .about-education-card, .home-portrait-card { backdrop-filter: none; }
+}
+/* Keep content visible even if a motion preference changes after AOS initializes. */
+@media (prefers-reduced-motion: reduce), (max-width: 767px) {
+  .App [data-aos] { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .App *, .App *::before, .App *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .App .featured-work-card:hover, .App .project-card-view:hover,
+  .App .featured-work-card:focus-within, .App .project-card-view:focus-within, .App .about-tech-card:hover,
+  .App .about-tech-card:focus-visible, .App .btn:hover, .App .gallery-image:hover,
+  .App .project-card-view:hover img, .App .featured-work-card:hover img { transform: none !important; }
+}

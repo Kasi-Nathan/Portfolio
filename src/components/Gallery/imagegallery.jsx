@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import AOS from 'aos';
+import React, { useState } from 'react';
 import 'aos/dist/aos.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './imagegallery.css';
@@ -13,9 +12,6 @@ import img5 from '../../Assets/Projects/Education/chatbot5.png';
 function ImageGallery() {
   const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
-    AOS.init({ duration: 1000 });
-  }, []);
 
   const images = [img1, img2, img3, img4, img5];
 
