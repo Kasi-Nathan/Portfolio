@@ -8,8 +8,8 @@ export function autonomousMotion(progress, reducedMotion) {
 }
 
 export function shouldRenderContinuously(progress, state = {}) {
-  return !state.reducedMotion && state.visible !== false && !state.disposed && !state.contextLost &&
-    autonomousMotion(progress, false) > 0;
+  // The independent ambient field drifts at every scroll position while visible.
+  return !state.reducedMotion && state.visible !== false && !state.disposed && !state.contextLost;
 }
 
 // Advance only while rendering an active phase. Hidden time never produces a

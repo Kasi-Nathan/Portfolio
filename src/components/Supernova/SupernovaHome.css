@@ -4,30 +4,40 @@
 .home-supernova-layer canvas { opacity: 0; }
 .home-supernova-layer--ready canvas { opacity: .94; }
 .home-supernova-layer--ready .home-supernova-fallback { visibility: hidden; }
-.home-supernova-fallback { background: radial-gradient(1px 1px at 23px 57px, #a8b9dc 90%, transparent) 0 0 / 233px 211px, radial-gradient(ellipse at 90% 65%, #18203a, transparent 65%), #070812; }
+.home-supernova-fallback { background: radial-gradient(1px 1px at 23px 57px, #a8b9dc 90%, transparent) 0 0 / 233px 211px, radial-gradient(1px 1px at 97px 131px, #a7d9ee 90%, transparent) 0 0 / 167px 173px, radial-gradient(1px 1px at 211px 43px, #b8a7dc 90%, transparent) 0 0 / 307px 239px, #070812; }
 .home-supernova-fallback::after { content: ""; position: absolute; inset: 0; opacity: var(--nebula-reveal, 0); background: radial-gradient(ellipse at 76% 44%, rgba(66,172,207,.42), transparent 32%), radial-gradient(ellipse at 57% 62%, rgba(137,65,192,.5), transparent 39%), radial-gradient(ellipse at 65% 51%, rgba(7,8,18,.8), transparent 14%); }
-.home-supernova-fallback span { position: absolute; top: 61%; left: 50%; width: 34vmin; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); opacity: var(--opening-star-opacity, 1); background: radial-gradient(circle at 56% 43%, #d5ecf7, #a7d4ec 28%, #5c9ed0 72%, #1b4b85); box-shadow: 0 0 24px 7px #aadbF5aa, 0 0 95px 36px #4493ff55; }
-.home-supernova-journey { position: relative; z-index: 1; --hero-reveal: 0; --hero-offset: 24px; --designation-opacity: 1; }
-/* One occupied stage, followed by its bounded sticky travel; no second intro.
-   Tall mobile heroes retain their natural height and scroll normally on release. */
-.home-supernova-journey::after { content: ""; display: block; height: 85vh; height: 85svh; max-height: 900px; }
+.home-supernova-journey { position: relative; z-index: 1; --hero-reveal: 0; --hero-offset: 24px; --designation-opacity: 1; --opening-copy-offset: 0px; }
+/* The stage holds the completed introduction for the last 40% of its travel.
+   Tall mobile heroes keep their natural height and scroll normally on release. */
+.home-supernova-journey::after { content: ""; display: block; height: 260vh; height: 260svh; }
 .home-supernova-stage { position: sticky; top: 0; }
-.home-stellar-opening { position: absolute; inset: 0 0 auto; z-index: 2; height: 100vh; height: 100svh; padding: clamp(105px, 14svh, 150px) 24px 72px; text-align: center; pointer-events: none; }
-.home-stellar-designation { opacity: var(--designation-opacity); }
-.home-stellar-kicker, .home-stellar-classification { color: #aebed1; font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
-.home-stellar-name { margin: .65rem 0; font-size: clamp(2.2rem, 4.6vw, 4rem); line-height: 1.12; letter-spacing: .12em; font-weight: 300; color: #e2eef8; }
-.home-stellar-name span { color: #93c8ea; font-weight: 200; }
-.home-stellar-skip { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); color: #c0d4e7; font-size: .8rem; text-decoration: none; white-space: nowrap; padding: 12px; border-radius: 4px; background: #070812b8; pointer-events: auto; opacity: var(--designation-opacity); }
+.home-stellar-opening { position: absolute; inset: 0 0 auto; z-index: 2; height: 100vh; height: 100svh; padding: clamp(100px, 13svh, 140px) 24px 72px; text-align: center; pointer-events: none; }
+.home-stellar-designation { opacity: var(--designation-opacity); transform: translateY(var(--opening-copy-offset)); }
+.home-supernova-journey[data-opening-visible="false"] .home-stellar-designation { visibility: hidden; }
+.home-stellar-kicker { margin: 0; color: #98c9d9; font-family: var(--space-mono, monospace); font-size: .68rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.home-stellar-headline { max-width: 16ch; margin: .8rem auto 1rem; color: #f2f6fb; font-size: clamp(3.2rem, 6vw, 6.2rem); font-weight: 500; letter-spacing: -.065em; line-height: .97; text-wrap: balance; text-shadow: 0 5px 30px #070812; }
+.home-stellar-classification { max-width: 50ch; margin: 0 auto; color: #c2d0dc; font-size: clamp(.95rem, 1.25vw, 1.12rem); line-height: 1.65; text-shadow: 0 3px 18px #070812; }
+.home-stellar-name { margin: 1.1rem 0 0; color: #8facbf; font-family: var(--space-mono, monospace); font-size: .62rem; letter-spacing: .22em; }
+.home-stellar-skip { position: absolute; bottom: 28px; left: 50%; margin: 0; transform: translateX(-50%); color: #b9d1df; font-family: var(--space-mono, monospace); font-size: .7rem; letter-spacing: .1em; white-space: nowrap; opacity: var(--designation-opacity); }
+.home-stellar-skip span { display: inline-block; margin-left: .5rem; color: #8ccbdc; }
+.home-stellar-a11y-skip { position: absolute; top: 16px; left: 16px; padding: .6rem .8rem; color: #fff; background: #091322; transform: translateY(-200%); pointer-events: auto; }
+.home-stellar-a11y-skip:focus-visible { transform: none; outline: 2px solid #8fd5ed; outline-offset: 3px; }
 .home-supernova-journey[data-hero-interactive="true"] .home-stellar-skip { visibility: hidden; }
-.home-stellar-skip:focus-visible { opacity: 1; }
-.home-stellar-skip:hover { color: #fff; }
-.home-stellar-skip:focus-visible { outline: 2px solid #8fd5ed; outline-offset: 4px; }
+.home-supernova-journey[data-hero-interactive="true"] .home-stellar-a11y-skip { display: none; }
 /* The existing cards/portrait remain protected; uncovered margins reveal dust.
    Opacity never removes content from the accessibility tree or tab sequence. */
-.portfolio-home .home-hero { z-index: 1; scroll-margin-top: 72px; background: transparent; opacity: var(--hero-reveal, 1); transform: translateY(var(--hero-offset, 0px)); pointer-events: none; }
-.home-supernova-journey[data-hero-interactive="true"] .home-hero { pointer-events: auto; }
-.portfolio-home .home-hero:focus-within { opacity: 1; transform: none; pointer-events: auto; }
-.portfolio-home .home-hero::before { background: radial-gradient(ellipse at 28% 46%, rgba(7,8,18,.85), transparent 68%); }
+.portfolio-home .home-intro { position: relative; z-index: 1; display: flex; min-height: 100svh; align-items: center; padding: 8svh clamp(24px, 7vw, 120px); visibility: hidden; opacity: var(--hero-reveal, 0); transform: translateY(var(--hero-offset, 24px)); pointer-events: none; }
+.home-supernova-journey[data-hero-visible="true"] .home-intro { visibility: visible; }
+.home-supernova-journey[data-hero-interactive="true"] .home-intro { pointer-events: auto; }
+.portfolio-home .home-intro:focus-within { opacity: 1; transform: none; pointer-events: auto; }
+.home-intro-copy { position: relative; z-index: 2; width: min(62%, 850px); }
+.home-intro-kicker { margin-bottom: 1.4rem; color: #94c9d8; font-size: .7rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+.portfolio-home .home-intro h1 { margin: 0; color: #eef4fa; font-size: clamp(4.5rem, 9vw, 10rem); font-weight: 500; letter-spacing: -.075em; line-height: .88; white-space: nowrap; text-shadow: 0 8px 42px rgba(7,8,18,.65); }
+.portfolio-home .home-intro h1 span { color: #b6c9e4; }
+.home-intro-subtitle { margin: 2rem 0 0; color: #c5cad8; font-size: clamp(.85rem, 1.3vw, 1.15rem); letter-spacing: .14em; }
+.home-intro-planet-fallback { display: none; }
+.home-supernova-journey[data-fallback="true"] .home-intro-planet-fallback { position: absolute; right: 9%; top: 30%; display: block; width: 28vmin; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 36% 30%, #6386a8, #30294a 65%, #111525); box-shadow: 0 0 28px #6c77b533; }
+.home-supernova-journey[data-fallback="true"] .home-intro-planet-fallback::after { position: absolute; inset: 35% -33%; border: 2px solid #a2a0c299; border-radius: 50%; transform: rotate(-19deg); content: ""; }
 .portfolio-home .home-about-section { position: relative; z-index: 1; background: transparent; }
 .portfolio-home .home-section-heading, .portfolio-home .home-centered-heading, .portfolio-home .home-build-intro { text-shadow: 0 2px 14px #070812; }
 /* Keep the existing contact content protected while the cloud fills the
@@ -40,13 +50,17 @@
 .home-supernova-journey[data-fallback="true"]::after { display: none; }
 .home-supernova-journey[data-fallback="true"] .home-supernova-stage { position: relative; }
 .home-supernova-journey[data-fallback="true"] .home-stellar-opening { display: none; }
-.home-supernova-journey[data-fallback="true"] .home-hero { opacity: 1; transform: none; pointer-events: auto; }
+.home-supernova-journey[data-fallback="true"] .home-intro { visibility: visible; opacity: 1; transform: none; pointer-events: auto; }
 @media (max-width: 767px) {
   .home-stellar-opening { padding-inline: 16px; }
-  .home-stellar-name { font-size: clamp(2rem, 8vw, 3.5rem); letter-spacing: .09em; }
-  .home-stellar-classification { max-width: 28em; margin: .75rem auto; font-size: .6rem; line-height: 1.7; }
-  .home-supernova-fallback span { width: 42vmin; }
-  .home-supernova-journey::after { height: 65svh; }
+  .home-stellar-headline { max-width: 13ch; font-size: clamp(2.7rem, 10vw, 4.8rem); }
+  .home-stellar-classification { max-width: 31ch; font-size: .95rem; }
+  .home-stellar-kicker { font-size: .56rem; }
+  .home-supernova-journey::after { height: 230svh; }
+  .portfolio-home .home-intro { min-height: 100svh; align-items: flex-start; padding: 16svh 24px 8svh; }
+  .home-intro-copy { width: 100%; }
+  .portfolio-home .home-intro h1 { font-size: clamp(3.5rem, 15vw, 6rem); }
+  .home-intro-subtitle { max-width: 21ch; line-height: 1.5; }
 }
 @media (max-width: 991px) {
   .portfolio-home .home-about-section .contact-cta-section { width: min(100%, 38rem); margin: clamp(96px, 20svh, 160px) auto 0; padding: clamp(24px, 4vw, 36px); text-align: center; }
@@ -60,12 +74,12 @@
   .home-supernova-journey::after { display: none; }
   .home-supernova-stage { position: relative; }
   .home-stellar-opening { display: none; }
-  .portfolio-home .home-hero { opacity: 1; transform: none; pointer-events: auto; }
-  .home-supernova-fallback span { display: none; }
+  .portfolio-home .home-intro { visibility: visible; opacity: 1; transform: none; pointer-events: auto; }
 }
 @media (max-height: 500px) and (orientation: landscape) {
   .home-stellar-opening { padding-top: 85px; }
-  .home-stellar-kicker, .home-stellar-classification { display: none; }
-  .home-stellar-name { font-size: 1.7rem; }
+  .home-stellar-headline { max-width: 25ch; font-size: clamp(1.8rem, 4vw, 2.7rem); }
+  .home-stellar-classification { display: none; }
+  .home-stellar-name { margin-top: .4rem; }
   .home-stellar-skip { bottom: 8px; }
 }

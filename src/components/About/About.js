@@ -7,6 +7,7 @@ import Techstack from "./Techstack";
 import Aboutcard from "./AboutCard";
 import laptopImg from "../../Assets/tech.jpg";
 import settings from "../../data/settings.json";
+import education from "../../data/education";
 import Toolstack from "./Toolstack";
 import "./About.css";
 
@@ -35,11 +36,11 @@ function About() {
             <Col lg={5} className="about-hero-aside" data-aos="fade-left" data-aos-delay="120">
               <div className="about-education-card">
                 <span className="about-card-label">Currently</span>
-                <h2>Master’s in Philosophy &amp; Computer Science</h2>
-                <p>University of Bayreuth</p>
+                <h2>{education.masters.degree}</h2>
+                <p>{education.masters.institution}</p>
                 <div className="about-card-divider" />
                 <span className="about-card-label">Foundation</span>
-                <h3>B.Tech in Information Technology</h3>
+                <h3>{education.bachelors.degree}</h3>
               </div>
             </Col>
           </Row>

@@ -1,39 +1,153 @@
+.gallery-page {
+  max-width: 1240px !important;
+  min-height: calc(100vh - 150px);
+  padding-top: 138px !important;
+  padding-bottom: 92px !important;
+}
+
+.gallery-page-heading {
+  display: grid;
+  gap: .7rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid var(--space-line);
+}
+
+.gallery-page-kicker {
+  color: var(--space-cyan);
+  font-family: var(--space-mono);
+  font-size: .66rem;
+  text-transform: uppercase;
+}
+
+.gallery-page-heading h1 {
+  margin: 0;
+  color: var(--space-text);
+  font-size: clamp(1.9rem, 3.3vw, 3rem);
+  font-weight: 500;
+}
+
+.gallery-page .row {
+  align-items: stretch;
+}
+
+.gallery-image-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid rgba(146, 171, 201, .2);
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgba(14, 22, 35, .98), rgba(7, 11, 20, .98));
+  box-shadow: inset 0 1px 0 rgba(225, 238, 249, .04), 0 14px 36px rgba(0, 0, 0, .22);
+  cursor: zoom-in;
+  text-align: left;
+  transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+}
+
+.gallery-image-trigger:hover,
+.gallery-image-trigger:focus-visible {
+  border-color: var(--space-line-bright);
+  box-shadow: 0 0 24px rgba(105, 183, 215, .1), 0 20px 42px rgba(0, 0, 0, .3);
+  transform: translateY(-3px);
+}
+
 .gallery-image {
-    transition: transform 0.3s ease;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: contain;
+  padding: 12px;
+  background: rgba(3, 7, 14, .82);
+  transition: transform .35s ease;
+}
+
+.gallery-image-trigger:hover .gallery-image {
+  transform: scale(1.015);
+}
+
+.gallery-image-index {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: .35rem .5rem;
+  color: #d1deea;
+  font-family: var(--space-mono);
+  font-size: .58rem;
+  border: 1px solid rgba(155, 184, 211, .25);
+  background: rgba(5, 8, 15, .84);
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: 64px 22px 32px;
+  background: rgba(3, 6, 12, .94);
+  backdrop-filter: blur(14px);
+}
+
+.lightbox-img {
+  display: block;
+  max-width: min(1200px, 94vw);
+  max-height: 86vh;
+  padding: 12px;
+  border: 1px solid rgba(146, 171, 201, .26);
+  border-radius: 5px;
+  background: #080c15;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, .55);
+  object-fit: contain;
+}
+
+.close-btn {
+  position: fixed;
+  top: 22px;
+  right: 24px;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  padding: 0;
+  color: #dce8f2;
+  font-size: 1.8rem;
+  line-height: 1;
+  border: 1px solid rgba(146, 171, 201, .3);
+  border-radius: 2px;
+  background: rgba(12, 18, 29, .9);
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: var(--space-cyan);
+  border-color: var(--space-line-bright);
+}
+
+@media (max-width: 767px) {
+  .gallery-page {
+    padding-top: 116px !important;
+    padding-bottom: 64px !important;
   }
-  .gallery-image:hover {
-    transform: scale(1.03);
+
+  .gallery-image-trigger {
+    min-height: 160px;
   }
-  
-  .lightbox {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    backdrop-filter: blur(10px);
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-  }
-  
+
   .lightbox-img {
-    max-width: 90%;
-    max-height: 90%;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+    max-width: 96vw;
+    max-height: 78vh;
   }
-  
-  .close-btn {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    font-size: 2.5rem;
-    color: white;
-    background: none;
-    border: none;
-    cursor: pointer;
-  }
-  
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-image-trigger,
+  .gallery-image { transition: none !important; }
+
+  .gallery-image-trigger:hover,
+  .gallery-image-trigger:focus-visible,
+  .gallery-image-trigger:hover .gallery-image { transform: none !important; }
+}

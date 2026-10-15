@@ -1,7 +1,9 @@
 import * as THREE from "three";
 import createDustPointer from "./DustPointer";
-import { FORMATION, INTERACTION, SCATTERING, formationHaze, particleInteraction } from "./SupernovaFormation";
+import { FORMATION, INTERACTION, SCATTERING, SUPERNOVA_PHASES, formationHaze, particleInteraction } from "./SupernovaFormation";
 import { autonomousMotion, createActiveClock, observeSceneVisibility, shouldRenderContinuously } from "./SupernovaAnimation";
+
+export { SUPERNOVA_PHASES };
 
 export const SUPERNOVA_THRESHOLDS = Object.freeze({
   star: 0.17,
@@ -9,25 +11,21 @@ export const SUPERNOVA_THRESHOLDS = Object.freeze({
   nebula: 0.78,
 });
 
-// These ranges intentionally overlap. Every visual state is derived from scroll
-// progress, so the complete sequence can be scrubbed in either direction.
-export const SUPERNOVA_PHASES = Object.freeze({
-  stable: Object.freeze({ start: 0, end: 0.14 }),
-  instability: Object.freeze({ start: 0.08, end: 0.23 }),
-  collapse: Object.freeze({ start: 0.17, end: 0.315 }),
-  ignition: Object.freeze({ start: 0.275, end: 0.455 }),
-  ejecta: Object.freeze({ start: 0.265, end: 0.52 }),
-  dispersal: Object.freeze({ start: 0.42, end: 0.7 }),
-  dust: Object.freeze({ start: 0.58, end: 0.86 }),
-  nebula: Object.freeze({ start: FORMATION.start, end: 1 }),
-});
-
 export function particleBudget(width, hardwareThreads = 8) {
-  return width < 768 ? 6200 : width <= 991 || hardwareThreads <= 4 ? 8500 : 14000;
+  return width < 768 ? 7200 : width <= 991 || hardwareThreads <= 4 ? 10000 : 16000;
 }
 
 export function pixelRatioCap(width) {
   return width <= 991 ? 1.25 : 1.5;
+}
+
+export function ambientStarBudget(width, hardwareThreads = 8) {
+  return width < 768 ? 2600 : width <= 991 || hardwareThreads <= 4 ? 4200 : 6800;
+}
+
+export function travelAmount(progress) {
+  const value = Math.max(0, Math.min(1, (progress - 0.18) / 0.43));
+  return value * value * (3 - 2 * value);
 }
 
 export function shaderProgramsHealthy(programs = []) {
@@ -62,18 +60,17 @@ function smoothPhase(start, end, progress) {
   return value * value * (3 - 2 * value);
 }
 
-function createParticleAttributes(count) {
+export function createParticleAttributes(count) {
   const random = createRandom(0x51a7c0de);
+  const planetRandom = createRandom(0x0c19a5e7);
   const starPositions = new Float32Array(count * 3);
   const dustPositions = new Float32Array(count * 3);
   const nebulaPositions = new Float32Array(count * 3);
-  const ejectaPositions = new Float32Array(count * 3);
-  const ejectaData = new Float32Array(count * 4);
+  const planetPositions = new Float32Array(count * 4);
+  const galaxyData = new Float32Array(count * 4);
   const turbulence = new Float32Array(count * 3);
   const sizes = new Float32Array(count);
   const seeds = new Float32Array(count);
-  const filamentAngles = [0.12, 1.53, 2.58, 4.08, 5.3];
-  const filamentReach = [1.13, 0.84, 1.22, 0.78, 1.04];
   const nebulaLobes = [
     { x: -6.5, y: 1.5, z: -5, width: 4.4, height: 2.5, depth: 3.7, tilt: -0.24 },
     { x: 2.1, y: -1.4, z: 1.5, width: 5.2, height: 3.1, depth: 4.3, tilt: 0.34 },
@@ -82,48 +79,31 @@ function createParticleAttributes(count) {
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
-    const directionY = random() * 2 - 1;
-    const directionAngle = random() * Math.PI * 2;
-    const directionRadius = Math.sqrt(1 - directionY * directionY);
-    const starRadius = Math.cbrt(random()) * 0.78;
-    const dustAngle = random() * Math.PI * 2;
-    const dustBand = Math.floor(random() * 3);
-    const dustRadius = random() < 0.78
-      ? 0.52 + Math.sqrt(random()) * 0.46
-      : 0.12 + Math.sqrt(random()) * 0.62;
-
-    const directionX = Math.cos(directionAngle) * directionRadius;
-    const directionZ = Math.sin(directionAngle) * directionRadius;
-    const ejectaClass = random() < 0.18 ? 0 : random() < 0.59 ? 1 : 2;
-    const filament = Math.floor(random() * 5);
-    const filamentAngle = random() < 0.78
-      ? filamentAngles[filament] + randomNormal(random) * 0.36
-      : directionAngle;
-    const launchSpeed = (ejectaClass === 0 ? 1.3 : ejectaClass === 1 ? 0.76 : 1.05) * (0.82 + random() * 0.43);
-    const launchDistance = (7 + Math.pow(random(), 0.65) * 12) * launchSpeed * filamentReach[filament];
-    const depth = ejectaClass === 0
-      ? 0.35 + random() * 0.5
-      : (random() * 2 - 1) * 0.52;
-
-    starPositions[offset] = directionX * starRadius;
-    starPositions[offset + 1] = directionY * starRadius;
-    starPositions[offset + 2] = directionZ * starRadius;
-
-    dustPositions[offset + 2] = -6 - dustBand * 6 - random() * 3.5;
-
-    ejectaPositions[offset] = Math.cos(filamentAngle) * launchDistance + directionX * 2.1;
-    ejectaPositions[offset + 1] = Math.sin(filamentAngle) * launchDistance * 0.72 + directionY * 2.5;
-    ejectaPositions[offset + 2] = depth * launchDistance + directionZ * 1.8;
-    // Retain each plume's azimuth as it recedes instead of crossing the core
-    // toward an unrelated dust destination. No new random samples or identities.
-    const dustDirection = Math.atan2(ejectaPositions[offset + 1] / 0.72, ejectaPositions[offset])
-      + (dustAngle - Math.PI) * 0.12;
-    dustPositions[offset] = Math.cos(dustDirection) * dustRadius * 22;
-    dustPositions[offset + 1] = Math.sin(dustDirection) * dustRadius * 12.5;
-    ejectaData[index * 4] = (ejectaClass === 0 ? 0 : ejectaClass === 1 ? 0.028 : 0.012) + random() * 0.045;
-    ejectaData[index * 4 + 1] = launchSpeed;
-    ejectaData[index * 4 + 2] = ejectaClass;
-    ejectaData[index * 4 + 3] = filament / 5;
+    // Four wound arms surround a dense stellar bulge. A small diffuse cohort
+    // softens the arm boundaries while narrow under-filled lanes retain shape.
+    const cohort = random();
+    const kind = cohort < 0.22 ? 0 : cohort < 0.9 ? 1 : 2;
+    const arm = index % 4;
+    const radius = kind === 0 ? Math.sqrt(random()) * 2.4
+      : kind === 1 ? 1.2 + Math.pow(random(), 0.8) * 11.2
+        : Math.sqrt(random()) * 12.4;
+    const armSpread = kind === 1 ? randomNormal(random) * (0.09 + radius * 0.006) : 0;
+    const angle = kind === 1
+      ? arm * Math.PI * 0.5 + radius * 0.48 + armSpread
+      : random() * Math.PI * 2;
+    const lane = kind === 1 && radius > 3.2 && Math.abs(armSpread) < 0.035 ? 0.28 : 1;
+    starPositions[offset] = Math.cos(angle) * radius;
+    starPositions[offset + 1] = Math.sin(angle) * radius;
+    starPositions[offset + 2] = randomNormal(random) * (kind === 0 ? 0.9 : 0.16 + radius * 0.03);
+    galaxyData[index * 4] = radius / 12.4;
+    galaxyData[index * 4 + 1] = kind;
+    galaxyData[index * 4 + 2] = arm;
+    galaxyData[index * 4 + 3] = lane;
+    const dustAngle = angle + randomNormal(random) * 0.24;
+    const dustRadius = 6 + Math.sqrt(random()) * 17;
+    dustPositions[offset] = Math.cos(dustAngle) * dustRadius;
+    dustPositions[offset + 1] = Math.sin(dustAngle) * dustRadius * 0.58;
+    dustPositions[offset + 2] = -6 - random() * 22;
     turbulence[offset] = random() * Math.PI * 2;
     turbulence[offset + 1] = random() * Math.PI * 2;
     turbulence[offset + 2] = 0.35 + random() * 0.9;
@@ -157,29 +137,52 @@ function createParticleAttributes(count) {
     nebulaPositions[offset + 1] = cloudY;
     nebulaPositions[offset + 2] = cloudZ;
 
+    const planetOffset = index * 4;
+    const ringClass = index % 10;
+    if (ringClass < 4) {
+      const ringAngle = planetRandom() * Math.PI * 2;
+      const band = ringClass === 0 ? 1 : ringClass === 3 ? 3 : 2;
+      const ringRadius = band === 1 ? 1.27 + planetRandom() * 0.13
+        : band === 2 ? 1.52 + planetRandom() * 0.17 : 1.82 + planetRandom() * 0.2;
+      planetPositions[planetOffset] = Math.cos(ringAngle) * ringRadius;
+      planetPositions[planetOffset + 1] = (Math.sin(ringAngle) * 0.34 + Math.cos(ringAngle) * 0.12) * ringRadius;
+      planetPositions[planetOffset + 2] = Math.sin(ringAngle) * ringRadius * 0.58;
+      planetPositions[planetOffset + 3] = band;
+    } else {
+      const latitude = planetRandom() * 2 - 1;
+      const longitude = planetRandom() * Math.PI * 2;
+      const horizontal = Math.sqrt(1 - latitude * latitude);
+      planetPositions[planetOffset] = Math.cos(longitude) * horizontal;
+      planetPositions[planetOffset + 1] = latitude;
+      planetPositions[planetOffset + 2] = Math.sin(longitude) * horizontal;
+    }
+
     sizes[index] = 1.1 + random() * 3.8;
     seeds[index] = random();
   }
 
-  return { starPositions, dustPositions, nebulaPositions, ejectaPositions, ejectaData, turbulence, sizes, seeds };
+  return { starPositions, dustPositions, nebulaPositions, planetPositions, galaxyData, turbulence, sizes, seeds };
 }
 
 const particleVertexShader = `
   attribute vec3 aDustPosition;
   attribute vec3 aNebulaPosition;
-  attribute vec3 aEjectaPosition;
-  attribute vec4 aEjectaData;
+  attribute vec4 aPlanetPosition;
+  attribute vec4 aGalaxyData;
   attribute vec3 aTurbulence;
   attribute float aPointSize;
   attribute float aSeed;
 
   uniform float uProgress;
+  uniform float uPlanetAmount;
+  uniform vec2 uPlanetCenter;
+  uniform float uPlanetRadius;
+  uniform vec2 uGalaxyScale;
   uniform float uPixelRatio;
-  uniform vec3 uSourceScale;
-  uniform float uSourceY;
   uniform vec3 uNebulaScale;
   uniform vec2 uNebulaCenter;
   uniform vec3 uPointer;
+  uniform vec2 uPointerVelocity;
   uniform float uInteraction;
   uniform float uViewportAspect;
   uniform float uMotionTime;
@@ -191,32 +194,20 @@ const particleVertexShader = `
   varying float vHaloStrength;
 
   void main() {
-    float launchStart = 0.265 + aEjectaData.x;
-    float launch = smoothstep(launchStart, launchStart + 0.115 / aEjectaData.y, uProgress);
-    float ejecta = smoothstep(0.265, 0.36, uProgress);
-    float tracer = (1.0 - step(0.5, aEjectaData.z)) * smoothstep(0.55, 0.8, aSeed);
-    float surge = smoothstep(0.3, 0.41, uProgress) * (1.0 - smoothstep(0.47, 0.58, uProgress));
-    float retreat = smoothstep(0.41, 0.69, uProgress);
-    float settle = smoothstep(0.48 + tracer * 0.045, 0.7, uProgress);
+    float loosen = smoothstep(0.12, 0.36, uProgress);
+    float settle = smoothstep(0.25 + aSeed * 0.035, 0.59, uProgress);
     float nebulaArrival = smoothstep(${FORMATION.start} + aSeed * ${FORMATION.startSpread}, ${FORMATION.end} + aSeed * ${FORMATION.endSpread}, uProgress);
-    float ignition = exp(-pow((uProgress - 0.295) * 42.0, 2.0));
-    float burst = launch * (1.0 - settle);
-
-    vec3 source = position * uSourceScale + vec3(0.0, uSourceY, 0.0);
-    vec3 particlePosition = mix(source, aEjectaPosition, launch);
-    vec3 path = normalize(aEjectaPosition + vec3(0.001));
-    vec3 swirl = vec3(-path.y, path.x, 0.25 * sin(aTurbulence.x));
-    float filamentWave = sin(launch * 8.0 + aTurbulence.x + aEjectaData.w * 6.28318);
-    particlePosition += swirl * filamentWave * aTurbulence.z * burst * 1.45;
-    particlePosition.z += sin(launch * 5.0 + aTurbulence.y) * aTurbulence.z * burst * 1.15;
-    particlePosition += path * surge * burst * (aEjectaData.z < 0.5 ? 5.5 : 2.0) * aTurbulence.z;
-    // Keep approaching shards in front of the near plane without a hard clamp.
-    particlePosition.z /= 1.0 + abs(particlePosition.z) / 40.0;
-    particlePosition = mix(particlePosition, aDustPosition, settle);
-    particlePosition.z -= retreat * (1.0 - settle) * (2.0 + aSeed * 3.0);
-
-    float drift = sin(uProgress * 5.0 + aSeed * 6.28318) * 0.055;
-    particlePosition += normalize(particlePosition + vec3(0.001)) * drift * (1.0 - burst);
+    float radius = length(position.xy);
+    float turn = uMotionTime * (0.013 / (1.0 + radius * 0.12)) * uMotionProfile.x;
+    vec2 orbit = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * position.xy;
+    vec3 galaxyPosition = vec3(orbit.x * uGalaxyScale.x,
+      orbit.y * 0.62 * uGalaxyScale.y - position.z * 0.78 - 3.5,
+      orbit.y * 0.78 + position.z * 0.62);
+    vec3 separation = vec3(cos(aTurbulence.x), sin(aTurbulence.x),
+      sin(aTurbulence.y)) * (1.4 + 3.8 * aSeed) * loosen * (1.0 - settle);
+    vec3 particlePosition = mix(galaxyPosition + separation, aDustPosition, settle);
+    particlePosition.xy += vec2(sin(uMotionTime * 0.17 + aTurbulence.x),
+      cos(uMotionTime * 0.14 + aTurbulence.y)) * 0.16 * (1.0 - uPlanetAmount);
 
     vec4 viewPosition = modelViewMatrix * vec4(particlePosition, 1.0);
     if (nebulaArrival > 0.0) {
@@ -230,7 +221,7 @@ const particleVertexShader = `
       targetNdc = sign(targetNdc) * (min(abs(targetNdc), vec2(0.8)) + (1.0 - exp(-excess / 0.14)) * 0.14);
       destination.xy = targetNdc * (-destination.z) / vec2(projectionMatrix[0][0], projectionMatrix[1][1]);
       vec2 travel = destination.xy - viewPosition.xy;
-      vec2 bend = vec2(-travel.y, travel.x) * (0.07 + aEjectaData.w * 0.09);
+      vec2 bend = vec2(-travel.y, travel.x) * (0.07 + aSeed * 0.09);
       viewPosition = mix(viewPosition, destination, nebulaArrival);
       viewPosition.xy += bend * sin(nebulaArrival * 3.14159265);
     }
@@ -255,6 +246,30 @@ const particleVertexShader = `
       cos(crossFlow + phase) * 0.08);
     viewPosition.xyz += mix(dustFlow, cloudFlow, nebulaArrival) * uMotionAmount * uMotionProfile.y;
 
+    // Most dust gathers into the planet; a small seed cohort remains in the
+    // surrounding field. Its positions stay deterministic as scroll reverses.
+    float planetBlend = uPlanetAmount * smoothstep(0.08, 0.18, aSeed);
+    vec3 planetLocal = aPlanetPosition.xyz;
+    if (aPlanetPosition.w > 0.5) {
+      float ringY = (aPlanetPosition.y - aPlanetPosition.x * 0.12) / 0.34;
+      float ringRadius = length(vec2(aPlanetPosition.x, ringY));
+      float orbit = atan(ringY, aPlanetPosition.x)
+        + uMotionTime * (0.018 + aPlanetPosition.w * 0.004) * uMotionProfile.x;
+      planetLocal = vec3(cos(orbit) * ringRadius,
+        (sin(orbit) * 0.34 + cos(orbit) * 0.12) * ringRadius,
+        sin(orbit) * ringRadius * 0.58);
+    } else {
+      float turn = uMotionTime * 0.045 * uMotionProfile.x;
+      planetLocal.xz = vec2(
+        aPlanetPosition.x * cos(turn) - aPlanetPosition.z * sin(turn),
+        aPlanetPosition.x * sin(turn) + aPlanetPosition.z * cos(turn));
+    }
+    vec3 planetPosition = vec3(
+      uPlanetCenter.x * 38.0 / projectionMatrix[0][0],
+      uPlanetCenter.y * 38.0 / projectionMatrix[1][1], -38.0
+    ) + planetLocal * uPlanetRadius;
+    viewPosition.xyz = mix(viewPosition.xyz, planetPosition, planetBlend);
+
     // Work in projected, aspect-correct coordinates so interaction follows
     // the canvas and camera view offset, including the finale's framing.
     // Apply only a temporary view-space offset after deterministic positions.
@@ -262,68 +277,84 @@ const particleVertexShader = `
     // Pointer state itself survives every scroll phase, including reversal.
     float interaction = uInteraction * uPointer.z;
     interaction *= mix(1.0, ${INTERACTION.nebulaStrength}, nebulaArrival);
-    if (interaction > 0.0) {
+    if (interaction > 0.0 && dot(uPointerVelocity, uPointerVelocity) > 0.000001) {
       vec4 projected = projectionMatrix * viewPosition;
       vec2 delta = (projected.xy / projected.w - uPointer.xy) * vec2(uViewportAspect, 1.0);
       float distanceToPointer = length(delta);
-      vec2 outward = distanceToPointer > 0.0001 ? delta / distanceToPointer : vec2(cos(aTurbulence.x), sin(aTurbulence.x));
-      // Keep the active area local. Nebula particles use a tighter opening,
-      // with a seeded tangential band around the radial push.
       float scatterRadius = mix(${SCATTERING.dustRadius}, ${SCATTERING.nebulaRadius}, nebulaArrival);
       float influence = 1.0 - smoothstep(scatterRadius * ${SCATTERING.openingStart}, scatterRadius, distanceToPointer);
-      float swirlBand = smoothstep(scatterRadius * ${SCATTERING.swirlStart}, scatterRadius * ${SCATTERING.swirlPeak}, distanceToPointer)
-        * (1.0 - smoothstep(scatterRadius * ${SCATTERING.swirlPeak}, scatterRadius * ${SCATTERING.swirlEnd}, distanceToPointer));
       float depthResponse = mix(1.0, 0.72, smoothstep(42.0, 70.0, -viewPosition.z));
-      float handedness = aSeed < 0.5 ? -1.0 : 1.0;
-      float flowPhase = sin(uMotionTime * (0.65 + aSeed * 0.5) + aTurbulence.y);
-      vec2 tangent = vec2(-outward.y, outward.x) * handedness;
-      float swirlAmount = mix(0.1, 0.18, nebulaArrival) * (0.78 + flowPhase * 0.22);
-      vec2 disturbance = outward * influence + tangent * swirlBand * swirlAmount;
-      float organicScale = 0.82 + aSeed * 0.36;
-      float pushDistance = mix(0.095, 0.155, nebulaArrival);
-      vec2 offsetNdc = disturbance * interaction * depthResponse * organicScale * pushDistance;
+      // Cursor velocity is in NDC per second. Scale x for circular screen-space
+      // influence, then cap fast strokes without changing their direction.
+      vec2 motion = uPointerVelocity * vec2(uViewportAspect, 1.0);
+      motion *= min(1.0, 3.0 / max(length(motion), 0.0001));
+      float variation = 0.55 + aSeed * 0.65;
+      float sideways = sin(aTurbulence.x * 2.7 + aSeed * 6.28318) * 0.3;
+      vec2 disturbance = motion + vec2(-motion.y, motion.x) * sideways;
+      vec2 offsetNdc = disturbance * influence * interaction * depthResponse * variation * 0.035;
       offsetNdc.x /= uViewportAspect;
       viewPosition.xy += offsetNdc * (-viewPosition.z) / vec2(projectionMatrix[0][0], projectionMatrix[1][1]);
     }
     gl_Position = projectionMatrix * viewPosition;
-    float fragmentScale = aEjectaData.z < 0.5 ? 2.1 : aEjectaData.z < 1.5 ? 1.42 : 0.78;
     float depthScale = clamp(38.0 / max(12.0, -viewPosition.z), 0.62, 1.75);
-    float pointScale = mix(1.0, fragmentScale * (1.0 + surge * 0.2), ejecta * (1.0 - settle));
-    pointScale = mix(pointScale, 0.9 + tracer * 0.5, settle) + ignition * 1.1;
+    float galaxyPointScale = aGalaxyData.y < 0.5 ? 1.4 + aSeed * 0.55 : 0.8 + aSeed * 0.65;
+    float pointScale = mix(galaxyPointScale, mix(0.8, 1.5, aSeed), settle);
     float nebulaDepth = clamp((aNebulaPosition.z + 12.0) / 24.0, 0.0, 1.0);
     pointScale = mix(pointScale, mix(1.05, 1.65, aSeed) * mix(0.8, 1.22, nebulaDepth), nebulaArrival);
+    float limb = 1.0 - abs(planetLocal.z);
+    float planetPointScale = aPlanetPosition.w > 0.5
+      ? 1.25 + aSeed * 0.65 : 1.65 + aSeed * 0.65 + smoothstep(0.65, 0.95, limb) * 0.32;
+    pointScale = mix(pointScale, planetPointScale, planetBlend);
     gl_PointSize = clamp(aPointSize * pointScale * uPixelRatio * depthScale, 1.0, 14.0);
 
-    vec3 starColor = mix(vec3(0.47, 0.78, 1.0), vec3(0.92, 0.96, 1.0), aSeed * 0.62);
-    vec3 shardColor = mix(vec3(0.69, 0.89, 1.0), vec3(0.97, 0.97, 1.0), aSeed);
-    vec3 denseColor = mix(vec3(0.26, 0.72, 1.0), vec3(0.5, 0.48, 0.95), aSeed);
-    vec3 fineColor = mix(vec3(0.44, 0.37, 0.85), vec3(0.83, 0.39, 0.77), aSeed * 0.6);
-    vec3 ejectaColor = aEjectaData.z < 0.5 ? shardColor : aEjectaData.z < 1.5 ? denseColor : fineColor;
-    vec3 dustColor = mix(vec3(0.35, 0.75, 1.0), vec3(0.72, 0.61, 1.0), aSeed);
+    vec3 dustColor = mix(vec3(0.42, 0.76, 0.96), vec3(0.75, 0.64, 0.98), aSeed);
+    vec3 armColor = aGalaxyData.z < 0.5 ? vec3(0.43, 0.81, 1.0)
+      : aGalaxyData.z < 1.5 ? vec3(0.56, 0.57, 0.98)
+        : aGalaxyData.z < 2.5 ? vec3(0.91, 0.46, 0.78) : vec3(0.64, 0.88, 1.0);
+    armColor = mix(armColor, vec3(0.9, 0.94, 1.0), aSeed * 0.22);
+    vec3 coreColor = mix(vec3(1.0, 0.72, 0.38), vec3(1.0, 0.96, 0.83),
+      1.0 - smoothstep(0.0, 0.19, aGalaxyData.x));
+    vec3 galaxyColor = aGalaxyData.y < 0.5 ? coreColor
+      : aGalaxyData.y < 1.5 ? mix(coreColor, armColor, smoothstep(0.08, 0.3, aGalaxyData.x))
+        : mix(vec3(0.48, 0.57, 0.78), armColor, 0.36);
     float cyanBias = clamp(0.18 + 0.24 * sin(aNebulaPosition.x * 0.26 + aNebulaPosition.y * 0.43)
       + 0.2 * smoothstep(1.5, 6.5, abs(aNebulaPosition.y)), 0.0, 0.68);
     float brightKnot = smoothstep(0.72, 0.98, aSeed) * mix(0.45, 1.0, nebulaDepth);
     vec3 nebulaColor = mix(vec3(0.48, 0.16, 0.92), vec3(0.16, 0.83, 1.0), smoothstep(0.12, 0.6, cyanBias));
     nebulaColor = mix(nebulaColor, vec3(0.94, 0.22, 0.72), smoothstep(2.0, 11.0, aNebulaPosition.x) * brightKnot * 0.48);
     nebulaColor *= 1.0 + brightKnot * 0.65;
-    vec3 color = mix(starColor, ejectaColor, ejecta);
-    color = mix(color, dustColor, settle);
-    vColor = mix(color, nebulaColor, nebulaArrival);
+    vColor = mix(mix(galaxyColor, dustColor, settle), nebulaColor, nebulaArrival);
+    vec3 planetColor = aPlanetPosition.w > 0.5
+      ? (aPlanetPosition.w < 1.5 ? vec3(0.55, 0.81, 0.91)
+        : aPlanetPosition.w < 2.5 ? vec3(0.68, 0.62, 0.88) : vec3(0.4, 0.7, 0.83)) * (0.82 + aSeed * 0.3)
+      : mix(vec3(0.23, 0.53, 0.7), vec3(0.76, 0.72, 0.94),
+        smoothstep(-0.85, 0.85, planetLocal.y))
+        * (0.82 + 0.18 * sin(planetLocal.y * 13.0 + aSeed * 2.0));
+    planetColor = mix(planetColor, vec3(0.58, 0.86, 0.94),
+      (1.0 - step(0.5, aPlanetPosition.w)) * smoothstep(0.68, 0.96, limb) * 0.25);
+    vColor = mix(vColor, planetColor, planetBlend);
 
-    float starOpacity = 0.68 + ignition * 0.22;
-    float ejectaOpacity = aEjectaData.z < 0.5 ? 0.98 : aEjectaData.z < 1.5 ? 0.82 : 0.46;
-    ejectaOpacity *= mix(0.72, 1.1, clamp((depthScale - 0.62) / 1.13, 0.0, 1.0));
     float edgeWeight = smoothstep(0.34, 0.83, length(aDustPosition.xy / vec2(22.0, 12.5)));
-    float dustOpacity = (mix(0.34, 0.58, aSeed) + tracer * 0.16) * mix(0.3, 1.0, edgeWeight);
-    dustOpacity *= clamp(depthScale, 0.68, 1.0);
+    float dustOpacity = mix(0.48, 0.78, aSeed) * mix(0.52, 1.0, edgeWeight);
+    dustOpacity *= clamp(depthScale, 0.74, 1.0);
     float nebulaOpacity = mix(0.4, 0.73, aSeed) * mix(0.7, 1.08, nebulaDepth) + brightKnot * 0.18;
-    vOpacity = mix(starOpacity, ejectaOpacity, ejecta);
-    vOpacity = mix(vOpacity, dustOpacity, settle);
+    float galaxyOpacity = aGalaxyData.y < 0.5 ? 0.74
+      : aGalaxyData.y < 1.5 ? 0.76 * aGalaxyData.w : 0.22;
+    galaxyOpacity *= mix(1.08, 0.78, aGalaxyData.x);
+    vOpacity = mix(galaxyOpacity, dustOpacity, settle);
     vOpacity = mix(vOpacity, nebulaOpacity, nebulaArrival);
-    vOpacity *= smoothstep(0.265, 0.3, uProgress);
+    // The rear arc disappears behind the projected disc. The front arc stays
+    // bright, while the back of the spherical body contributes only a trace.
+    float behindDisc = (1.0 - step(0.0, planetLocal.z))
+      * (1.0 - smoothstep(0.94, 1.04, length(planetLocal.xy)));
+    float planetOpacity = aPlanetPosition.w > 0.5
+      ? mix(0.42, 0.9, smoothstep(-0.4, 0.4, planetLocal.z)) * (1.0 - behindDisc * 0.97)
+      : mix(0.03, 0.92, smoothstep(-0.24, 0.48, planetLocal.z));
+    vOpacity = mix(vOpacity, planetOpacity, planetBlend);
     vOpacity *= 1.0 + breathing * 0.055 * nebulaArrival * uMotionAmount * uMotionProfile.y;
-    vHaloStrength = mix(0.46, 0.66, ejecta * (1.0 - settle));
+    vHaloStrength = 0.46;
     vHaloStrength = mix(vHaloStrength, 0.72, nebulaArrival);
+    vHaloStrength = mix(vHaloStrength, 0.52, planetBlend);
   }
 `;
 
@@ -342,94 +373,80 @@ const particleFragmentShader = `
   }
 `;
 
+export function createAmbientAttributes(count) {
+  const random = createRandom(0xa81e57a9);
+  const coordinates = new Float32Array(count * 3);
+  const seeds = new Float32Array(count);
+  const sizes = new Float32Array(count);
+  for (let index = 0; index < count; index += 1) {
+    const offset = index * 3;
+    coordinates[offset] = (random() * 2 - 1) * 1.18;
+    coordinates[offset + 1] = (random() * 2 - 1) * 1.18;
+    coordinates[offset + 2] = random();
+    seeds[index] = random();
+    sizes[index] = 0.8 + Math.pow(random(), 3) * 2.7;
+  }
+  return { coordinates, seeds, sizes };
+}
+
+const ambientVertexShader = `
+  attribute float aSeed;
+  attribute float aPointSize;
+  uniform float uTravel;
+  uniform float uTime;
+  uniform float uPixelRatio;
+  uniform float uIntensity;
+  varying vec3 vColor;
+  varying float vOpacity;
+  varying float vHaloStrength;
+  varying float vStreak;
+  varying vec2 vTravelDirection;
+
+  void main() {
+    // Each point occupies a real camera-space depth. Scrolling advances it
+    // toward the viewer; modulo wraps it without changing its identity.
+    float depth = 16.0 + mod(position.z * 86.0 - uTravel * 64.0 * (0.75 + aSeed * 0.4) + 86.0, 86.0);
+    vec2 drift = vec2(sin(uTime * 0.035 + aSeed * 17.0),
+      cos(uTime * 0.028 + aSeed * 23.0)) * 0.006;
+    vec2 ndc = position.xy + drift;
+    vec3 viewPosition = vec3(ndc * depth / vec2(projectionMatrix[0][0], projectionMatrix[1][1]), -depth);
+    gl_Position = projectionMatrix * vec4(viewPosition, 1.0);
+    float proximity = clamp(38.0 / depth, 0.38, 1.8);
+    float travelPhase = smoothstep(0.02, 0.22, uTravel) * (1.0 - smoothstep(0.78, 1.0, uTravel));
+    vStreak = travelPhase * smoothstep(0.8, 1.7, proximity) * 0.65;
+    vTravelDirection = normalize(vec2(position.x * projectionMatrix[1][1] / projectionMatrix[0][0], position.y) + vec2(0.0001));
+    gl_PointSize = clamp(aPointSize * proximity * uPixelRatio * (1.0 + vStreak * 1.4), 1.0, 9.0);
+    vColor = mix(vec3(0.64, 0.83, 1.0), vec3(0.95, 0.98, 1.0), aSeed);
+    vColor = mix(vColor, vec3(0.72, 0.63, 0.96), smoothstep(0.78, 1.0, aSeed) * 0.55);
+    vOpacity = uIntensity * (0.32 + aSeed * 0.55) * (0.85 + 0.15 * sin(uTime * (0.3 + aSeed) + aSeed * 30.0));
+    vHaloStrength = 0.42;
+  }
+`;
+
+const ambientFragmentShader = `
+  varying vec3 vColor;
+  varying float vOpacity;
+  varying float vHaloStrength;
+  varying float vStreak;
+  varying vec2 vTravelDirection;
+  void main() {
+    vec2 point = gl_PointCoord - vec2(0.5);
+    float along = dot(point, vTravelDirection);
+    float across = dot(point, vec2(-vTravelDirection.y, vTravelDirection.x));
+    float radius = length(vec2(along * (1.0 - vStreak * 0.55), across));
+    float halo = exp(-radius * radius * 24.0);
+    float core = exp(-radius * radius * 100.0);
+    gl_FragColor = vec4(vColor * (0.9 + core * 0.75),
+      min(1.0, (halo * vHaloStrength + core * 0.55) * vOpacity));
+  }
+`;
+
 const coronaVertexShader = `
   varying vec2 vUv;
 
   void main() {
     vUv = uv;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-const coronaFragmentShader = `
-  uniform float uProgress;
-  varying vec2 vUv;
-
-  float hash21(vec2 point) {
-    point = fract(point * vec2(123.34, 456.21));
-    point += dot(point, point + 45.32);
-    return fract(point.x * point.y);
-  }
-
-  float valueNoise(vec2 point) {
-    vec2 cell = floor(point);
-    vec2 local = fract(point);
-    local = local * local * (3.0 - 2.0 * local);
-    float a = hash21(cell);
-    float b = hash21(cell + vec2(1.0, 0.0));
-    float c = hash21(cell + vec2(0.0, 1.0));
-    float d = hash21(cell + vec2(1.0, 1.0));
-    return mix(mix(a, b, local.x), mix(c, d, local.x), local.y);
-  }
-
-  void main() {
-    vec2 point = (vUv - vec2(0.5)) * 2.0;
-    float radius = length(point);
-    float angle = atan(point.y, point.x);
-    float instability = smoothstep(0.08, 0.23, uProgress);
-    float ignition = exp(-pow((uProgress - 0.295) * 42.0, 2.0));
-    float starVisibility = 1.0 - smoothstep(0.275, 0.37, uProgress);
-    float visibility = max(starVisibility, ignition * 0.5);
-    float slowTime = uProgress * 0.4;
-
-    // atan jumps from -PI to PI on the left axis. Sample the circular
-    // direction instead so the corona has no horizontal noise seam.
-    vec2 direction = vec2(cos(angle), sin(angle));
-    float angularNoise = valueNoise(direction * 1.55 + vec2(4.0, slowTime));
-    angularNoise += valueNoise(direction * 3.7 + vec2(-8.0, slowTime * 0.73)) * 0.45;
-    float unevenRadius = radius / mix(0.9, 1.1, angularNoise / 1.45);
-    // The stellar disc reaches roughly radius 0.42 in this plane. Keep the
-    // brightest corona just outside it so the surface can retain its detail.
-    float innerHalo = exp(-pow((unevenRadius - 0.44) * 12.0, 2.0));
-    float middleHalo = exp(-pow((unevenRadius - 0.59) * 5.0, 2.0));
-    float outerHalo = exp(-unevenRadius * 2.7) * (1.0 - smoothstep(0.42, 1.0, unevenRadius));
-
-    float rayA = pow(max(0.0, sin(angle * 7.0 + angularNoise * 4.4)), 10.0);
-    float rayB = pow(max(0.0, sin(angle * 13.0 - angularNoise * 5.2)), 18.0);
-    float rays = (rayA * 0.62 + rayB * 0.38) * exp(-max(0.0, radius - 0.42) * 4.7);
-    rays *= smoothstep(0.38, 0.5, radius) * (0.72 + instability * 0.42);
-
-    float coreBloom = exp(-radius * radius * 18.0);
-    float edgeFade = 1.0 - smoothstep(0.84, 1.0, radius);
-    vec3 cyan = vec3(0.22, 0.66, 1.0);
-    vec3 ice = vec3(0.78, 0.92, 1.0);
-    vec3 color = mix(cyan, ice, clamp(innerHalo * 0.8 + coreBloom * 0.2, 0.0, 1.0));
-    float luminance = innerHalo * 0.82 + middleHalo * 0.3 + outerHalo * 0.3 + rays * 0.32 + coreBloom * 0.04;
-    float alpha = clamp(luminance * visibility * edgeFade * (0.9 + instability * 0.08 + ignition * 0.3), 0.0, 1.0);
-    gl_FragColor = vec4(color * (0.74 + innerHalo * 0.3 + ignition * 0.16), alpha);
-  }
-`;
-
-const shockwaveFragmentShader = `
-  uniform float uProgress;
-  varying vec2 vUv;
-
-  void main() {
-    vec2 point = (vUv - vec2(0.5)) * 2.0;
-    float angle = atan(point.y, point.x);
-    float radius = length(point * vec2(1.0, 1.08));
-    float travel = smoothstep(0.275, 0.435, uProgress);
-    float waveRadius = mix(0.045, 0.92, travel);
-    float irregularity = sin(angle * 7.0 + 0.8) * 0.012 + sin(angle * 13.0 - 1.4) * 0.007;
-    float width = mix(0.028, 0.012, travel);
-    float ring = exp(-pow((radius - waveRadius - irregularity) / width, 2.0));
-    float waveEnvelope = smoothstep(0.274, 0.299, uProgress) * (1.0 - smoothstep(0.385, 0.455, uProgress));
-    float ignition = exp(-pow((uProgress - 0.295) * 43.0, 2.0));
-    float coreFlash = exp(-radius * radius * 42.0) * ignition;
-    float softFlash = exp(-radius * radius * 8.0) * ignition * 0.18;
-    float alpha = clamp(ring * waveEnvelope * 0.43 + coreFlash * 0.84 + softFlash, 0.0, 0.94);
-    vec3 color = mix(vec3(0.35, 0.75, 1.0), vec3(0.92, 0.97, 1.0), clamp(coreFlash + ring * 0.62, 0.0, 1.0));
-    gl_FragColor = vec4(color, alpha);
   }
 `;
 
@@ -499,85 +516,6 @@ const nebulaFragmentShader = `
   }
 `;
 
-const starVertexShader = `
-  varying vec3 vObjectPosition;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
-
-  void main() {
-    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
-    vObjectPosition = position;
-    vViewNormal = normalize(normalMatrix * normal);
-    vViewPosition = viewPosition.xyz;
-    gl_Position = projectionMatrix * viewPosition;
-  }
-`;
-
-const starFragmentShader = `
-  uniform float uProgress;
-  varying vec3 vObjectPosition;
-  varying vec3 vViewNormal;
-  varying vec3 vViewPosition;
-
-  float hash31(vec3 point) {
-    point = fract(point * 0.1031);
-    point += dot(point, point.yzx + 33.33);
-    return fract((point.x + point.y) * point.z);
-  }
-
-  float valueNoise(vec3 point) {
-    vec3 cell = floor(point);
-    vec3 local = fract(point);
-    local = local * local * (3.0 - 2.0 * local);
-    return mix(
-      mix(mix(hash31(cell), hash31(cell + vec3(1.0, 0.0, 0.0)), local.x),
-          mix(hash31(cell + vec3(0.0, 1.0, 0.0)), hash31(cell + vec3(1.0, 1.0, 0.0)), local.x), local.y),
-      mix(mix(hash31(cell + vec3(0.0, 0.0, 1.0)), hash31(cell + vec3(1.0, 0.0, 1.0)), local.x),
-          mix(hash31(cell + vec3(0.0, 1.0, 1.0)), hash31(cell + vec3(1.0, 1.0, 1.0)), local.x), local.y),
-      local.z
-    );
-  }
-
-  float fbm(vec3 point) {
-    float value = 0.0;
-    value += valueNoise(point) * 0.57;
-    point = point * 2.03 + vec3(7.1, 3.4, 5.8);
-    value += valueNoise(point) * 0.28;
-    point = point * 2.01 + vec3(2.6, 8.2, 1.9);
-    value += valueNoise(point) * 0.15;
-    return value;
-  }
-
-  void main() {
-    float instability = smoothstep(0.08, 0.23, uProgress);
-    float ignition = exp(-pow((uProgress - 0.295) * 42.0, 2.0));
-    float visibility = max(1.0 - smoothstep(0.275, 0.355, uProgress), ignition * 0.46);
-    float facing = clamp(dot(normalize(vViewNormal), normalize(-vViewPosition)), 0.0, 1.0);
-    float limb = 0.48 + 0.52 * pow(facing, 0.62);
-
-    vec3 samplePoint = normalize(vObjectPosition) * 3.1;
-    float rotation = uProgress * 0.7;
-    mat2 spin = mat2(cos(rotation), -sin(rotation), sin(rotation), cos(rotation));
-    samplePoint.xz = spin * samplePoint.xz;
-    samplePoint += sin(samplePoint.yzx * 5.0 + uProgress * 42.0) * instability * 0.075;
-    float convection = fbm(samplePoint * 1.15 + vec3(0.0, uProgress * 0.4, 0.0));
-    float granulation = fbm(samplePoint * 3.85 - vec3(uProgress * 0.65, 0.0, 0.0));
-    float cells = smoothstep(0.32, 0.66, convection);
-    float grains = smoothstep(0.33, 0.67, granulation);
-    float temperature = clamp(0.48 + (cells - 0.5) * 0.65 + (grains - 0.5) * 0.22, 0.0, 1.0);
-    vec3 coolBlue = vec3(0.38, 0.66, 0.87);
-    vec3 paleBlue = vec3(0.78, 0.9, 0.98);
-    vec3 color = mix(coolBlue, paleBlue, temperature);
-    color *= limb * mix(0.89, 1.07, grains);
-    color *= 1.0 + instability * (0.055 * sin(uProgress * 135.0 + convection * 8.0) + 0.035 * cells);
-    color += vec3(0.08, 0.16, 0.24) * instability * cells * 0.2;
-    color += vec3(0.2, 0.26, 0.29) * ignition * (0.3 + facing * 0.4);
-
-    float alpha = visibility * smoothstep(0.02, 0.16, facing);
-    gl_FragColor = vec4(color, alpha);
-  }
-`;
-
 function createSupernovaScene(canvas, onStatus) {
   let renderer;
   let animationFrame = 0;
@@ -586,8 +524,7 @@ function createSupernovaScene(canvas, onStatus) {
   let contextLost = false;
   let reducedMotion = false;
   let currentProgress = 0;
-  let starBaseScale = 3.8;
-  let coronaBaseScale = 9.1;
+  let planetAmount = 0;
   let resizeObserver;
   let framingX = 0;
   let framingY = 0;
@@ -605,25 +542,28 @@ function createSupernovaScene(canvas, onStatus) {
 
   const particleCount = particleBudget(window.innerWidth, navigator.hardwareConcurrency || 8);
 
-  const { starPositions, dustPositions, nebulaPositions, ejectaPositions, ejectaData, turbulence, sizes, seeds } = createParticleAttributes(particleCount);
+  const { starPositions, dustPositions, nebulaPositions, planetPositions, galaxyData, turbulence, sizes, seeds } = createParticleAttributes(particleCount);
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
   geometry.setAttribute("aDustPosition", new THREE.BufferAttribute(dustPositions, 3));
   geometry.setAttribute("aNebulaPosition", new THREE.BufferAttribute(nebulaPositions, 3));
-  geometry.setAttribute("aEjectaPosition", new THREE.BufferAttribute(ejectaPositions, 3));
-  geometry.setAttribute("aEjectaData", new THREE.BufferAttribute(ejectaData, 4));
+  geometry.setAttribute("aPlanetPosition", new THREE.BufferAttribute(planetPositions, 4));
+  geometry.setAttribute("aGalaxyData", new THREE.BufferAttribute(galaxyData, 4));
   geometry.setAttribute("aTurbulence", new THREE.BufferAttribute(turbulence, 3));
   geometry.setAttribute("aPointSize", new THREE.BufferAttribute(sizes, 1));
   geometry.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
 
   const particleUniforms = {
     uProgress: { value: 0 },
+    uPlanetAmount: { value: 0 },
+    uPlanetCenter: { value: new THREE.Vector2(0.46, -0.04) },
+    uPlanetRadius: { value: 5.4 },
+    uGalaxyScale: { value: new THREE.Vector2(1.5, 1.1) },
     uPixelRatio: { value: 1 },
-    uSourceScale: { value: new THREE.Vector3(1, 1, 1) },
-    uSourceY: { value: 0 },
     uNebulaScale: { value: new THREE.Vector3(1, 1, 1) },
     uNebulaCenter: { value: new THREE.Vector2(0, 0) },
     uPointer: { value: new THREE.Vector3(0, 0, 0) },
+    uPointerVelocity: { value: new THREE.Vector2(0, 0) },
     uInteraction: { value: 0 },
     uViewportAspect: { value: 1 },
     uMotionTime: { value: 0 },
@@ -641,8 +581,34 @@ function createSupernovaScene(canvas, onStatus) {
   });
   const particles = new THREE.Points(geometry, particleMaterial);
   particles.frustumCulled = false;
-  particles.renderOrder = 1;
+  particles.renderOrder = 2;
   scene.add(particles);
+
+  const ambientCount = ambientStarBudget(window.innerWidth, navigator.hardwareConcurrency || 8);
+  const ambientData = createAmbientAttributes(ambientCount);
+  const ambientGeometry = new THREE.BufferGeometry();
+  ambientGeometry.setAttribute("position", new THREE.BufferAttribute(ambientData.coordinates, 3));
+  ambientGeometry.setAttribute("aSeed", new THREE.BufferAttribute(ambientData.seeds, 1));
+  ambientGeometry.setAttribute("aPointSize", new THREE.BufferAttribute(ambientData.sizes, 1));
+  const ambientUniforms = {
+    uTravel: { value: 0 },
+    uTime: { value: 0 },
+    uPixelRatio: { value: 1 },
+    uIntensity: { value: 1 },
+  };
+  const ambientMaterial = new THREE.ShaderMaterial({
+    uniforms: ambientUniforms,
+    vertexShader: ambientVertexShader,
+    fragmentShader: ambientFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const ambientStars = new THREE.Points(ambientGeometry, ambientMaterial);
+  ambientStars.frustumCulled = false;
+  ambientStars.renderOrder = -1;
+  scene.add(ambientStars);
 
   const nebulaUniforms = {
     uVisibility: { value: 0 },
@@ -664,67 +630,13 @@ function createSupernovaScene(canvas, onStatus) {
   nebula.renderOrder = 0;
   scene.add(nebula);
 
-  const coronaUniforms = {
-    uProgress: { value: 0 },
-  };
-  const coronaGeometry = new THREE.PlaneGeometry(2, 2);
-  const coronaMaterial = new THREE.ShaderMaterial({
-    uniforms: coronaUniforms,
-    vertexShader: coronaVertexShader,
-    fragmentShader: coronaFragmentShader,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
-  corona.position.z = -0.8;
-  corona.renderOrder = 2;
-  scene.add(corona);
-
-  const starUniforms = {
-    uProgress: { value: 0 },
-  };
-  const starGeometry = new THREE.SphereGeometry(1, 48, 32);
-  const starMaterial = new THREE.ShaderMaterial({
-    uniforms: starUniforms,
-    vertexShader: starVertexShader,
-    fragmentShader: starFragmentShader,
-    transparent: true,
-    depthWrite: false,
-    blending: THREE.NormalBlending,
-  });
-  const star = new THREE.Mesh(starGeometry, starMaterial);
-  star.renderOrder = 3;
-  scene.add(star);
-
-  const shockwaveUniforms = { uProgress: { value: 0 } };
-  const shockwaveGeometry = new THREE.PlaneGeometry(2, 2);
-  const shockwaveMaterial = new THREE.ShaderMaterial({
-    uniforms: shockwaveUniforms,
-    vertexShader: coronaVertexShader,
-    fragmentShader: shockwaveFragmentShader,
-    transparent: true,
-    depthWrite: false,
-    depthTest: false,
-    blending: THREE.AdditiveBlending,
-  });
-  const shockwave = new THREE.Mesh(shockwaveGeometry, shockwaveMaterial);
-  shockwave.position.z = 0.8;
-  shockwave.renderOrder = 4;
-  scene.add(shockwave);
-
   function disposeSceneResources() {
     geometry.dispose();
     particleMaterial.dispose();
+    ambientGeometry.dispose();
+    ambientMaterial.dispose();
     nebulaGeometry.dispose();
     nebulaMaterial.dispose();
-    coronaGeometry.dispose();
-    coronaMaterial.dispose();
-    starGeometry.dispose();
-    starMaterial.dispose();
-    shockwaveGeometry.dispose();
-    shockwaveMaterial.dispose();
   }
 
   try {
@@ -760,9 +672,8 @@ function createSupernovaScene(canvas, onStatus) {
     particleUniforms.uProgress.value = progress;
     particleUniforms.uInteraction.value = reducedMotion ? 0 : particleInteraction(progress);
     particleUniforms.uMotionAmount.value = autonomousMotion(progress, reducedMotion);
-    coronaUniforms.uProgress.value = progress;
-    starUniforms.uProgress.value = progress;
-    shockwaveUniforms.uProgress.value = progress;
+    ambientUniforms.uTravel.value = reducedMotion ? 0 : travelAmount(progress);
+    ambientUniforms.uIntensity.value = 1 - smoothPhase(0.62, 0.88, progress) * 0.62;
     nebulaUniforms.uVisibility.value = formationHaze(progress);
   }
 
@@ -771,26 +682,16 @@ function createSupernovaScene(canvas, onStatus) {
     const now = performance.now();
     pointer?.step(Math.max(0, (now - lastRenderTime) / 1000));
     lastRenderTime = now;
-    if (pointer) particleUniforms.uPointer.value.set(pointer.value.x, pointer.value.y, pointer.value.strength);
+    if (pointer) {
+      particleUniforms.uPointer.value.set(pointer.value.x, pointer.value.y, pointer.value.strength);
+      particleUniforms.uPointerVelocity.value.set(pointer.value.velocityX, pointer.value.velocityY);
+    }
     updateUniforms();
     const time = reducedMotion ? 0 : animationClock.sample(now);
     particleUniforms.uMotionTime.value = time;
+    ambientUniforms.uTime.value = time;
     nebulaUniforms.uTime.value = time;
 
-    const progress = particleUniforms.uProgress.value;
-    const instability = smoothPhase(SUPERNOVA_PHASES.instability.start, SUPERNOVA_PHASES.instability.end, progress);
-    const collapseIn = smoothPhase(SUPERNOVA_PHASES.collapse.start, 0.255, progress);
-    const collapseOut = 1 - smoothPhase(0.255, SUPERNOVA_PHASES.collapse.end, progress);
-    const collapse = collapseIn * collapseOut;
-    const ignition = Math.exp(-Math.pow((progress - 0.295) * 42, 2));
-    const pulse = reducedMotion ? 0 : Math.sin(progress * 85) * (0.012 + instability * 0.008);
-    const stellarScale = starBaseScale * (1 + pulse - collapse * 0.1 + ignition * 0.18);
-    const haloScale = coronaBaseScale * (1 + pulse * 0.6 + instability * 0.04 - collapse * 0.07 + ignition * 0.22);
-    star.scale.setScalar(stellarScale);
-    const sourceRadius = stellarScale * 0.93 / 0.78;
-    particleUniforms.uSourceScale.value.set(sourceRadius / particles.scale.x, sourceRadius, sourceRadius);
-    corona.scale.set(haloScale, haloScale, 1);
-    shockwave.visible = progress > 0.265 && progress < 0.455;
     nebula.visible = nebulaUniforms.uVisibility.value > 0;
     renderer.render(scene, camera);
   }
@@ -845,7 +746,7 @@ function createSupernovaScene(canvas, onStatus) {
 
   function updateFraming() {
     // Place destinations and haze in their final composition from the outset.
-    // The camera, opening star, and unassembled dust never translate.
+    // The camera and ambient stars stay fixed; only destinations are framed.
     particleUniforms.uNebulaCenter.value.set(framingX * 2, -framingY * 2);
     const halfHeight = (camera.position.z - nebula.position.z) * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
     nebula.position.x = framingX * 2 * halfHeight * viewportWidth / viewportHeight;
@@ -860,6 +761,10 @@ function createSupernovaScene(canvas, onStatus) {
     viewportHeight = height;
     const aspect = width / height;
     particleUniforms.uViewportAspect.value = aspect;
+    particleUniforms.uPlanetCenter.value.set(width < 768 ? 0 : 0.45, width < 768 ? -0.28 : -0.04);
+    particleUniforms.uPlanetRadius.value = width < 768 ? 3.4 : width <= 991 ? 4.2 : 5.4;
+    particleUniforms.uGalaxyScale.value.set(width < 768 ? 1.1 : width <= 991 ? 1.25 : 1.5,
+      width < 768 ? 0.85 : 1.1);
     pointer?.clear();
     const isSmallScreen = width < 768;
     const gentleMotion = width <= 991 || coarsePointer?.matches;
@@ -874,17 +779,8 @@ function createSupernovaScene(canvas, onStatus) {
     particleUniforms.uNebulaScale.value.set(cloudWidth, 1.28, 1.15);
     nebula.scale.set(particles.scale.x * cloudWidth, 1.28, 1);
     nebulaUniforms.uFineDetail.value = width <= 991 ? 0 : 1;
-    // Size the projected sphere against the shorter viewport dimension.
-    const halfFovTangent = Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
-    const projectedRadius = halfFovTangent * (isSmallScreen ? 0.42 : 0.34) * Math.min(1, aspect);
-    starBaseScale = camera.position.z * projectedRadius / Math.sqrt(1 + projectedRadius * projectedRadius);
-    coronaBaseScale = starBaseScale * 2.4;
-    star.position.y = -camera.position.z * halfFovTangent * 0.22;
-    particleUniforms.uSourceY.value = star.position.y;
-    corona.position.y = star.position.y;
-    shockwave.position.y = star.position.y;
-    shockwave.scale.setScalar(isSmallScreen ? starBaseScale * 3.5 : starBaseScale * 4.2);
     particleUniforms.uPixelRatio.value = pixelRatio;
+    ambientUniforms.uPixelRatio.value = pixelRatio;
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
     scheduleRender();
@@ -960,6 +856,12 @@ function createSupernovaScene(canvas, onStatus) {
   startAnimation();
 
   return {
+    setPlanetAmount(amount) {
+      if (disposed) return;
+      planetAmount = THREE.MathUtils.clamp(amount, 0, 1);
+      particleUniforms.uPlanetAmount.value = reducedMotion ? 1 : planetAmount;
+      scheduleRender();
+    },
     setFraming(x, y) {
       if (disposed || (x === framingX && y === framingY)) return;
       framingX = x;
@@ -976,6 +878,7 @@ function createSupernovaScene(canvas, onStatus) {
     },
     setReducedMotion(value) {
       reducedMotion = value;
+      particleUniforms.uPlanetAmount.value = reducedMotion ? 1 : planetAmount;
       syncPointerAvailability();
       if (reducedMotion) {
         stopAnimation();

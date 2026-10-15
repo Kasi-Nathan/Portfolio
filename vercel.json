@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/about", "destination": "/index.html" },
     { "source": "/project", "destination": "/index.html" },
+    { "source": "/project/:projectId", "destination": "/index.html" },
     { "source": "/gallery", "destination": "/index.html" },
     { "source": "/bonegallery", "destination": "/index.html" },
     { "source": "/cryptogallery", "destination": "/index.html" }

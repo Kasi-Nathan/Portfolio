@@ -9,14 +9,18 @@ test("autonomous motion has a smooth bounded envelope independent of pointer str
   expect(autonomousMotion(0.72, true)).toBe(0);
 });
 
-test("continuous rendering remains active for dust and nebula, but pauses for lifecycle gates", () => {
+test("ambient drift renders throughout the visible journey and pauses for lifecycle gates", () => {
+  expect(shouldRenderContinuously(0)).toBe(true);
+  expect(shouldRenderContinuously(0.2)).toBe(true);
   expect(shouldRenderContinuously(0.72)).toBe(true);
   expect(shouldRenderContinuously(0.96)).toBe(true);
   expect(shouldRenderContinuously(0.72, { visible: false })).toBe(false);
   expect(shouldRenderContinuously(0.72, { reducedMotion: true })).toBe(false);
   expect(shouldRenderContinuously(0.72, { contextLost: true })).toBe(false);
   expect(shouldRenderContinuously(0.72, { disposed: true })).toBe(false);
-  expect(shouldRenderContinuously(0.3)).toBe(false);
+  expect(shouldRenderContinuously(0.3)).toBe(true);
+  expect(shouldRenderContinuously(0, { reducedMotion: true })).toBe(false);
+  expect(shouldRenderContinuously(0, { contextLost: true })).toBe(false);
 });
 
 test("active clock is deterministic, bounded, and pauses hidden elapsed time", () => {

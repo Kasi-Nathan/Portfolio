@@ -8,16 +8,27 @@ export const FORMATION = Object.freeze({
   hazeEnd: 1,
 });
 
+export const SUPERNOVA_PHASES = Object.freeze({
+  stable: Object.freeze({ start: 0, end: 0.14 }),
+  instability: Object.freeze({ start: 0.08, end: 0.23 }),
+  collapse: Object.freeze({ start: 0.17, end: 0.315 }),
+  ignition: Object.freeze({ start: 0.275, end: 0.455 }),
+  ejecta: Object.freeze({ start: 0.265, end: 0.52 }),
+  dispersal: Object.freeze({ start: 0.42, end: 0.7 }),
+  dust: Object.freeze({ start: 0.58, end: 0.86 }),
+  nebula: Object.freeze({ start: FORMATION.start, end: 1 }),
+});
+
 export const INTERACTION = Object.freeze({ start: 0.48, full: 0.7, nebulaStrength: 1.35 });
 
 export const SCATTERING = Object.freeze({
-  dustRadius: 0.18,
-  nebulaRadius: 0.145,
-  openingStart: 0.07,
+  dustRadius: 0.22,
+  nebulaRadius: 0.17,
+  openingStart: 0.35,
   openingEnd: 0.24,
-  swirlStart: 0.08,
-  swirlPeak: 0.28,
-  swirlEnd: 0.9,
+  swirlStart: 0.12,
+  swirlPeak: 0.38,
+  swirlEnd: 0.88,
 });
 
 function smooth(start, end, value) {

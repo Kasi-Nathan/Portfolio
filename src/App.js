@@ -4,6 +4,9 @@ import Navbar from "./components/Navbar";
 import Home from "./components/Home/Home";
 import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";  // Your existing Projects component
+import ProjectDetail from "./components/Projects/ProjectDetail";
+import { ProjectWormholeProvider } from "./components/Projects/ProjectWormhole";
+import { GalaxyTransitionProvider } from "./components/Projects/GalaxyTransition";
 import Footer from "./components/Footer";
 import Particle from "./components/Particle";
 import Motion from "./components/Motion";
@@ -40,6 +43,8 @@ function App() {
 
   return (
     <Router>
+      <GalaxyTransitionProvider>
+      <ProjectWormholeProvider>
       <Particle />
       <Motion />
       <Preloader load={load} />
@@ -49,6 +54,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project" element={<Projects />} />
+          <Route path="/project/:projectId" element={<ProjectDetail />} />
           <Route path="/about" element={<About />} />
           <Route path="/gallery" element={<ImageGallery />} />
           <Route path="/bonegallery" element={<BoneGallery />} />
@@ -69,6 +75,8 @@ function App() {
         </Routes>
         <Footer />
       </div>
+      </ProjectWormholeProvider>
+      </GalaxyTransitionProvider>
     </Router>
   );
 }

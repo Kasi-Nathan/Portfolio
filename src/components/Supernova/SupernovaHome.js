@@ -2,10 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import "./SupernovaHome.css";
 import { formationHaze } from "./SupernovaFormation";
 
-// Measure only the shared stage's sticky travel, independent of hero height.
-// The .72 cap retains dust without entering the nebula formation phase.
+// Use the first 60% of sticky travel for the cinematic transition, leaving
+// the rest for the fully revealed introduction before Projects enters.
 export function homepageProgress(top, travel) {
-  return Math.min(0.72, Math.max(0, -top / Math.max(1, travel)) * 0.72);
+  return Math.min(0.72, Math.max(0, -top / Math.max(1, travel * 0.6)) * 0.72);
+}
+
+export function journeyPosition(top, travel) {
+  return Math.min(1, Math.max(0, -top / Math.max(1, travel)));
 }
 
 function smoothReveal(start, end, progress) {
@@ -13,8 +17,12 @@ function smoothReveal(start, end, progress) {
   return value * value * (3 - 2 * value);
 }
 
-export function homepageReveal(progress) {
-  return smoothReveal(0.45, 0.69, progress);
+export function planetFormation(position) {
+  return smoothReveal(0.4, 0.57, position) * (1 - smoothReveal(0.8, 0.97, position));
+}
+
+export function homepageReveal(position) {
+  return smoothReveal(0.48, 0.61, position) * (1 - smoothReveal(0.84, 0.97, position));
 }
 
 export function finaleAmount(scroll, openingEnd, contactTop, homeBottom, viewport, maxScroll) {
@@ -76,7 +84,9 @@ export default function SupernovaHome({ children }) {
       if (frame) cancelAnimationFrame(frame);
       frame = 0;
       if (dirty) measure();
-      const focusedHero = opening.querySelector(".home-hero")?.contains(document.activeElement);
+      const hero = opening.querySelector(".home-intro");
+      const focusedHero = hero?.contains(document.activeElement);
+      const position = journeyPosition(metrics.top - window.scrollY, metrics.travel);
       const openingProgress = preference?.matches || focusedHero || unavailable ? 0.72 : homepageProgress(
         metrics.top - window.scrollY, metrics.travel
       );
@@ -87,13 +97,23 @@ export default function SupernovaHome({ children }) {
       const framing = finaleFraming(metrics.width);
       scene?.setFraming?.(framing[0], framing[1]);
       scene?.setProgress(progress);
-      const reveal = homepageReveal(progress);
+      scene?.setPlanetAmount?.(preference?.matches || focusedHero || unavailable ? 1 : planetFormation(position));
+      const reveal = preference?.matches || focusedHero || unavailable ? 1 : homepageReveal(position);
       opening.style.setProperty("--hero-reveal", reveal);
       opening.style.setProperty("--hero-offset", `${(1 - reveal) * 24}px`);
-      opening.style.setProperty("--designation-opacity", 1 - smoothReveal(0.12, 0.29, progress));
-      opening.dataset.heroInteractive = reveal > 0.95 ? "true" : "false";
+      const openingFade = smoothReveal(0.015, 0.15, position);
+      opening.style.setProperty("--designation-opacity", 1 - openingFade);
+      opening.style.setProperty("--opening-copy-offset", `${-18 * openingFade}px`);
+      opening.dataset.openingVisible = String(openingFade < 0.98 && !preference?.matches && !unavailable);
+      opening.querySelector(".home-stellar-designation")?.setAttribute("aria-hidden", String(openingFade >= 0.98 || Boolean(preference?.matches) || unavailable));
+      const heroInteractive = reveal >= 0.98 || focusedHero || unavailable;
+      opening.dataset.heroVisible = reveal > 0 || heroInteractive ? "true" : "false";
+      opening.dataset.heroInteractive = String(Boolean(heroInteractive));
+      if (hero) {
+        hero.toggleAttribute("inert", !heroInteractive);
+        hero.setAttribute("aria-hidden", String(!heroInteractive));
+      }
       // A static fallback also leaves the reading area as the opening exits.
-      layerRef.current.style.setProperty("--opening-star-opacity", Math.max(0, 1 - progress / 0.4));
       layerRef.current.style.setProperty("--nebula-reveal", formationHaze(progress));
     }
     function schedule() {
@@ -161,20 +181,28 @@ export default function SupernovaHome({ children }) {
   return (
     <>
       <div ref={layerRef} className={`home-supernova-layer home-supernova-layer--${status}`} aria-hidden="true">
-        <div className="home-supernova-fallback"><span /></div>
+        <div className="home-supernova-fallback" />
         <canvas ref={canvasRef} />
       </div>
       <div ref={openingRef} className="home-supernova-journey">
       <div ref={stageRef} className="home-supernova-stage">
       <div className="home-stellar-opening">
         <div className="home-stellar-designation">
-          <p className="home-stellar-kicker">Stellar observation // 01</p>
-          <p className="home-stellar-name">CYGNUS<span>-01</span></p>
-          <p className="home-stellar-classification">Luminous variable / pre-supernova candidate</p>
+          <p className="home-stellar-kicker">KASI NATHAN / DIGITAL UNIVERSE</p>
+          <h1 className="home-stellar-headline">Every idea begins with a spark.</h1>
+          <p className="home-stellar-classification">I build intelligent systems and interactive digital experiences. Step inside my universe.</p>
+          <p className="home-stellar-name">CYGNUS-01</p>
         </div>
-        <a className="home-stellar-skip" href="#home" onClick={() => {
-          openingRef.current.querySelector("#home-title")?.focus({ preventScroll: true });
-        }}>Explore the portfolio <span aria-hidden="true">↓</span></a>
+        <p className="home-stellar-skip">Scroll to ignite the universe <span aria-hidden="true">↓</span></p>
+        <a className="home-stellar-a11y-skip" href="#home" onClick={() => {
+          const opening = openingRef.current;
+          const hero = opening?.querySelector(".home-intro");
+          opening.dataset.heroVisible = "true";
+          opening.dataset.heroInteractive = "true";
+          hero?.removeAttribute("inert");
+          hero?.setAttribute("aria-hidden", "false");
+          hero?.querySelector("#home-title")?.focus({ preventScroll: true });
+        }}>Skip introduction</a>
       </div>
       {children}
       </div>

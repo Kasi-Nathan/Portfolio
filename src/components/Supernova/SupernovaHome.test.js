@@ -1,6 +1,8 @@
+/* These tests inspect measured layout nodes and flush the lazy scene import. */
+/* eslint-disable testing-library/no-container, testing-library/no-node-access, testing-library/no-unnecessary-act */
 import React from "react";
 import { act, render, screen } from "@testing-library/react";
-import SupernovaHome, { homepageProgress, homepageReveal, finaleAmount, finaleProgress, finaleFraming } from "./SupernovaHome";
+import SupernovaHome, { homepageProgress, homepageReveal, journeyPosition, planetFormation, finaleAmount, finaleProgress, finaleFraming } from "./SupernovaHome";
 import createScene from "./SupernovaScene";
 
 jest.mock("./SupernovaScene", () => ({ __esModule: true, default: jest.fn() }));
@@ -14,13 +16,21 @@ test("nebula destination framing depends only on viewport width, never scroll", 
 
 test("homepage mapping reverses, tracks opening height, and stops before nebula", () => {
   expect(homepageProgress(10, 1000)).toBe(0);
-  expect(homepageProgress(-500, 1000)).toBeCloseTo(0.36);
-  expect(homepageProgress(-250, 500)).toBeCloseTo(0.36);
+  expect(homepageProgress(-300, 1000)).toBeCloseTo(0.36);
+  expect(homepageProgress(-150, 500)).toBeCloseTo(0.36);
+  expect(homepageProgress(-600, 1000)).toBe(0.72);
+  expect(homepageProgress(-900, 1000)).toBe(0.72);
   expect(homepageProgress(-20000, 1000)).toBe(0.72);
   expect(homepageProgress(0, 1000)).toBe(0);
-  expect(homepageReveal(0.42)).toBe(0);
-  expect(homepageReveal(0.57)).toBeCloseTo(0.5);
-  expect(homepageReveal(0.72)).toBe(1);
+  expect(homepageReveal(0)).toBe(0);
+  expect(journeyPosition(-500, 1000)).toBe(0.5);
+  expect(homepageReveal(0.3)).toBe(0);
+  expect(homepageReveal(0.55)).toBeGreaterThan(0);
+  expect(homepageReveal(0.65)).toBe(1);
+  expect(homepageReveal(1)).toBe(0);
+  expect(planetFormation(0.2)).toBe(0);
+  expect(planetFormation(0.6)).toBe(1);
+  expect(planetFormation(1)).toBe(0);
 });
 
 test("mounts one scene, propagates motion preference and disposes on unmount", async () => {
@@ -29,13 +39,18 @@ test("mounts one scene, propagates motion preference and disposes on unmount", a
   const originalMatchMedia = window.matchMedia;
   window.matchMedia = () => preference;
   createScene.mockReturnValue(scene);
-  const view = render(<SupernovaHome />);
+  const view = render(<SupernovaHome><section className="home-intro"><h1 id="home-title">Portfolio heading</h1></section></SupernovaHome>);
   await act(async () => {});
   expect(createScene).toHaveBeenCalledTimes(1);
   expect(scene.setReducedMotion).toHaveBeenCalledWith(true);
   expect(scene.setProgress).toHaveBeenCalledWith(0.72);
   expect(view.container.querySelector('.home-supernova-journey').style.getPropertyValue('--hero-reveal')).toBe('1');
-  expect(screen.getByRole("link", { name: /Explore the portfolio/ })).toHaveAttribute("href", "#home");
+  expect(view.container.querySelector('.home-supernova-journey').style.getPropertyValue('--designation-opacity')).toBe('1');
+  expect(view.container.querySelector('.home-intro').hasAttribute('inert')).toBe(false);
+  expect(view.container.querySelector('.home-intro').getAttribute('aria-hidden')).toBe('false');
+  expect(screen.getByRole("heading", { name: "Every idea begins with a spark.", hidden: true })).toBeInTheDocument();
+  expect(screen.getByText(/Scroll to ignite the universe/)).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "Skip introduction" })).toHaveAttribute("href", "#home");
   act(() => {
     preference.matches = false;
     preference.addEventListener.mock.calls[0][1]();
@@ -49,17 +64,23 @@ test("mounts one scene, propagates motion preference and disposes on unmount", a
 
 test("measured sticky travel reverses the reveal and keyboard focus bypasses it", async () => {
   jest.useFakeTimers();
-  const scene = { setProgress: jest.fn(), setReducedMotion: jest.fn(), dispose: jest.fn() };
+  const scene = { setProgress: jest.fn(), setPlanetAmount: jest.fn(), setReducedMotion: jest.fn(), dispose: jest.fn() };
   createScene.mockReturnValue(scene);
-  const view = render(<SupernovaHome><section className="home-hero"><button>Portfolio action</button></section></SupernovaHome>);
+  const originalScroll = window.scrollY;
+  window.scrollY = 0;
+  const view = render(<SupernovaHome><section className="home-intro"><h1 id="home-title" tabIndex={-1}>Portfolio heading</h1><button>Portfolio action</button></section></SupernovaHome>);
   await act(async () => {});
   const journey = view.container.querySelector('.home-supernova-journey');
+  const hero = view.container.querySelector('.home-intro');
   const stage = view.container.querySelector('.home-supernova-stage');
-  let top = -640;
-  const originalScroll = window.scrollY;
-  window.scrollY = 640;
+  let top = -448;
+  window.scrollY = 448;
   journey.getBoundingClientRect = () => ({ top, height: 1800 });
   stage.getBoundingClientRect = () => ({ height: 1000 });
+  expect(journey.dataset.heroVisible).toBe('false');
+  expect(journey.dataset.heroInteractive).toBe('false');
+  expect(hero.hasAttribute('inert')).toBe(true);
+  expect(hero.getAttribute('aria-hidden')).toBe('true');
   window.dispatchEvent(new Event('resize'));
   function scroll() {
     act(() => {
@@ -68,14 +89,56 @@ test("measured sticky travel reverses the reveal and keyboard focus bypasses it"
     });
   }
   scroll();
-  expect(scene.setProgress).toHaveBeenLastCalledWith(0.576);
+  expect(scene.setProgress.mock.lastCall[0]).toBeCloseTo(0.672);
+  expect(journey.style.getPropertyValue('--designation-opacity')).toBe('0');
+  expect(journey.dataset.openingVisible).toBe('false');
   expect(Number(journey.style.getPropertyValue('--hero-reveal'))).toBeGreaterThan(0.5);
+  expect(journey.dataset.heroVisible).toBe('true');
+  expect(hero.hasAttribute('inert')).toBe(true);
+  expect(hero.getAttribute('aria-hidden')).toBe('true');
+  top = -520;
+  window.scrollY = 520;
+  scroll();
+  expect(scene.setProgress).toHaveBeenLastCalledWith(0.72);
+  expect(scene.setPlanetAmount).toHaveBeenLastCalledWith(1);
+  expect(journey.style.getPropertyValue('--hero-reveal')).toBe('1');
+  expect(journey.dataset.heroInteractive).toBe('true');
+  expect(hero.hasAttribute('inert')).toBe(false);
+  top = -600;
+  window.scrollY = 600;
+  scroll();
+  expect(journey.style.getPropertyValue('--hero-reveal')).toBe('1');
+  top = -760;
+  window.scrollY = 760;
+  scroll();
+  expect(Number(journey.style.getPropertyValue('--hero-reveal'))).toBeLessThan(1);
+  expect(Number(journey.style.getPropertyValue('--hero-reveal'))).toBeGreaterThan(0);
+  expect(scene.setPlanetAmount.mock.lastCall[0]).toBeLessThan(1);
+  top = -448;
+  window.scrollY = 448;
+  scroll();
+  expect(journey.dataset.heroInteractive).toBe('false');
+  expect(hero.hasAttribute('inert')).toBe(true);
   top = 0;
   window.scrollY = 0;
   scroll();
   expect(scene.setProgress).toHaveBeenLastCalledWith(0);
-  expect(journey.style.getPropertyValue('--hero-reveal')).toBe('0');
-  act(() => screen.getByRole('button', { name: 'Portfolio action' }).focus());
+  expect(scene.setPlanetAmount).toHaveBeenLastCalledWith(0);
+  expect(Number(journey.style.getPropertyValue('--hero-reveal'))).toBe(0);
+  expect(journey.dataset.heroVisible).toBe('false');
+  expect(journey.dataset.heroInteractive).toBe('false');
+  expect(hero.hasAttribute('inert')).toBe(true);
+  expect(journey.style.getPropertyValue('--designation-opacity')).toBe('1');
+  expect(journey.dataset.openingVisible).toBe('true');
+  top = -64;
+  window.scrollY = 64;
+  scroll();
+  expect(Number(journey.style.getPropertyValue('--designation-opacity'))).toBeGreaterThan(0);
+  expect(Number(journey.style.getPropertyValue('--designation-opacity'))).toBeLessThan(1);
+  top = 0;
+  window.scrollY = 0;
+  scroll();
+  act(() => screen.getByRole('link', { name: "Skip introduction" }).click());
   expect(scene.setProgress).toHaveBeenLastCalledWith(0.72);
   expect(journey.dataset.heroInteractive).toBe('true');
   view.unmount();
@@ -119,10 +182,12 @@ test("unavailable WebGL exposes the hero and removes the cinematic interval", as
     onStatus('unavailable');
     return null;
   });
-  const view = render(<SupernovaHome />);
+  const view = render(<SupernovaHome><section className="home-intro"><h1 id="home-title">Portfolio heading</h1></section></SupernovaHome>);
   await act(async () => {});
   expect(view.container.querySelector('.home-supernova-journey').dataset.fallback).toBe('true');
   expect(view.container.querySelector('.home-supernova-journey').style.getPropertyValue('--hero-reveal')).toBe('1');
+  expect(view.container.querySelector('.home-supernova-journey').dataset.heroInteractive).toBe('true');
+  expect(view.container.querySelector('.home-intro').hasAttribute('inert')).toBe(false);
   view.unmount();
 });
 

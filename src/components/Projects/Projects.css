@@ -445,3 +445,57 @@
     transform: none !important;
   }
 }
+
+/* Case files: closer to a mission log than a generic card wall. */
+.projects-collection > .container {
+  max-width: 1240px;
+}
+
+.projects-kicker {
+  color: var(--space-cyan);
+  font-family: var(--space-mono);
+  font-size: .66rem;
+}
+
+.projects-section-heading h2 {
+  color: #f1f4f8;
+  text-wrap: balance;
+}
+
+.projects-section-heading p {
+  max-width: 54ch;
+  color: #a7b3c3;
+}
+
+.projects-page .project-card-view {
+  border-radius: 6px !important;
+  background: linear-gradient(145deg, rgba(12, 20, 32, .98), rgba(8, 12, 21, .98)) !important;
+}
+
+.projects-page .project-card-featured-view {
+  border-color: rgba(134, 216, 232, .34) !important;
+  background: linear-gradient(115deg, rgba(12, 24, 37, .99), rgba(8, 12, 22, .99)) !important;
+}
+
+.projects-page .project-card-view .card-title {
+  color: #f0f4f8;
+}
+
+.projects-page .project-meta-label,
+.projects-page .project-description-block strong {
+  color: var(--space-cyan);
+  font-family: var(--space-mono);
+}
+
+.project-tech-list li {
+  border-color: rgba(133, 179, 207, .22);
+  border-radius: 2px;
+  background: rgba(100, 158, 193, .075);
+}
+
+.project-featured-label {
+  border-radius: 2px;
+  border-color: rgba(145, 198, 222, .36);
+  font-family: var(--space-mono);
+  font-size: .61rem;
+}

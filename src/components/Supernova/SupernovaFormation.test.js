@@ -31,13 +31,13 @@ test("pointer scattering is localized, smoothly falls off, and tightens in the n
   const distances = [0, middleRadius * 0.25, middleRadius * 0.55, middleRadius, middleRadius * 1.5];
   const influences = distances.map((distance) => scatteringInfluence(distance, 0));
   expect(influences[0]).toBe(1);
-  expect(influences[1]).toBeGreaterThan(influences[2]);
+  expect(influences[1]).toBe(1);
   expect(influences[2]).toBeGreaterThan(influences[3]);
   expect(influences[3]).toBe(0);
   expect(influences[4]).toBe(0);
 
   expect(scatteringSwirl(0, 1)).toBe(0);
-  expect(scatteringSwirl(nebulaRadius * 0.4, 1)).toBeGreaterThan(0);
+  expect(scatteringSwirl(nebulaRadius * 0.5, 1)).toBeGreaterThan(0);
   expect(scatteringSwirl(nebulaRadius, 1)).toBe(0);
 });
 

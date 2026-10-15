@@ -11,7 +11,7 @@ export function pointerCoordinates(clientX, clientY, bounds, output) {
 // particle buffers are involved; the scene owns the requestAnimationFrame loop.
 export default function createDustPointer(canvas, wake) {
   const capability = window.matchMedia?.("(hover: hover) and (pointer: fine)");
-  const value = { x: 0, y: 0, strength: 0 };
+  const value = { x: 0, y: 0, strength: 0, velocityX: 0, velocityY: 0 };
   let enabled = false;
   let disposed = false;
   let positioned = false;
@@ -21,7 +21,7 @@ export default function createDustPointer(canvas, wake) {
   const coordinates = { x: 0, y: 0 };
 
   function clear() {
-    if (!targetStrength) return;
+    if (!targetStrength && !value.velocityX && !value.velocityY) return;
     targetStrength = 0;
     wake();
   }
@@ -65,18 +65,34 @@ export default function createDustPointer(canvas, wake) {
       enabled = next && !disposed;
       if (!enabled) {
         value.strength = targetStrength = 0;
+        value.velocityX = value.velocityY = 0;
         positioned = false;
       }
     },
     needsFrame() {
-      return enabled && (Math.abs(value.strength - targetStrength) > 0.001 ||
+      return enabled && (Math.abs(value.velocityX) + Math.abs(value.velocityY) > 0.001 ||
+        Math.abs(value.strength - targetStrength) > 0.001 ||
         (targetStrength > 0 && (Math.abs(value.x - targetX) + Math.abs(value.y - targetY) > 0.0001)));
     },
     step(seconds) {
-      const follow = 1 - Math.exp(-Math.min(seconds, 0.05) * 24);
-      const fade = 1 - Math.exp(-Math.min(seconds, 0.05) * (targetStrength ? 12 : 7));
+      const dt = Math.min(Math.max(seconds, 0), 0.05);
+      if (!dt) return;
+      const follow = 1 - Math.exp(-dt * 24);
+      const fade = 1 - Math.exp(-dt * (targetStrength ? 12 : 7));
+      const previousX = value.x;
+      const previousY = value.y;
       value.x += (targetX - value.x) * follow;
       value.y += (targetY - value.y) * follow;
+      // Velocity follows the actual smoothed cursor path; releasing the pointer
+      // fades the impulse even while its last position remains on screen.
+      const velocityFollow = 1 - Math.exp(-dt * 18);
+      const desiredX = targetStrength ? (value.x - previousX) / dt : 0;
+      const desiredY = targetStrength ? (value.y - previousY) / dt : 0;
+      value.velocityX += (desiredX - value.velocityX) * velocityFollow;
+      value.velocityY += (desiredY - value.velocityY) * velocityFollow;
+      if (Math.abs(value.velocityX) + Math.abs(value.velocityY) < 0.001) {
+        value.velocityX = value.velocityY = 0;
+      }
       value.strength += (targetStrength - value.strength) * fade;
       if (Math.abs(value.strength - targetStrength) <= 0.001) value.strength = targetStrength;
       if (Math.abs(value.x - targetX) + Math.abs(value.y - targetY) <= 0.0001) {
@@ -88,6 +104,7 @@ export default function createDustPointer(canvas, wake) {
       disposed = true;
       enabled = false;
       value.strength = targetStrength = 0;
+      value.velocityX = value.velocityY = 0;
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerout", leave);
       window.removeEventListener("blur", clear);

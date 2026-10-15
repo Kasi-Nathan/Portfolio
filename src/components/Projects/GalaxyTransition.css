@@ -1,0 +1,11 @@
+.galaxy-travel { position: fixed; inset: 0; z-index: 10000; overflow: hidden; pointer-events: all; opacity: 0; background: #070b1b; isolation: isolate; transition: opacity .18s ease-out; }
+.galaxy-travel--contract { opacity: .28; }
+.galaxy-travel--flight { opacity: 1; transition: opacity .4s ease-in; }
+.galaxy-travel--reveal { opacity: 0; transition: opacity .48s ease-out; }
+.galaxy-travel__core { position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(77, 111, 174, .28), rgba(17, 28, 53, .76) 42%, #070b1b 95%); opacity: .6; }
+.galaxy-travel--flight .galaxy-travel__core { opacity: 1; transition: opacity .4s; }
+.galaxy-travel__cluster { position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; transform: translate(-50%, -50%) scale(.65); opacity: .65; --light: #c7eaf0; --mid: #6499bf; --dark: #273357; }
+.galaxy-travel--flight .galaxy-travel__cluster { transform: translate(-50%, -50%) scale(1.25); opacity: .18; transition: transform .4s ease-out, opacity .4s; }
+.galaxy-travel__stars { opacity: .6; transform: scale(1); }
+.galaxy-travel--flight .galaxy-travel__stars { transform: scale(1.18); opacity: .92; transition: transform .4s ease-out, opacity .4s; }
+@media (prefers-reduced-motion: reduce) { .galaxy-travel { display: none; } }

@@ -64,7 +64,7 @@ test("screen proximity maps consistently at every depth and canvas aspect", () =
 
 test("maps canvas-local pixels to NDC and smooths movement without an idle render loop", () => {
   move(700, 150);
-  expect(pointer.value).toEqual({ x: 0.5, y: 0.5, strength: 0 });
+  expect(pointer.value).toEqual({ x: 0.5, y: 0.5, strength: 0, velocityX: 0, velocityY: 0 });
   expect(pointer.needsFrame()).toBe(true);
   pointer.step(1 / 60);
   expect(pointer.value.strength).toBeGreaterThan(0);
@@ -76,7 +76,7 @@ test("maps canvas-local pixels to NDC and smooths movement without an idle rende
   expect(pointer.value.x).toBeGreaterThan(-0.5);
   expect(pointer.value.x).toBeLessThan(0.5);
   settle();
-  expect(pointer.value).toEqual({ x: -0.5, y: -0.5, strength: 1 });
+  expect(pointer.value).toEqual({ x: -0.5, y: -0.5, strength: 1, velocityX: 0, velocityY: 0 });
   expect(pointer.needsFrame()).toBe(false);
 });
 
@@ -118,10 +118,42 @@ test("a stationary pointer survives the handoff, completed nebula and reverse sc
     pointer.step(1 / 60);
     expect(pointer.value).toEqual(position);
     const strength = pointer.value.strength * particleInteraction(progress, formationArrival(progress, 0.5));
-    if (progress > 0.48) expect(strength).toBeGreaterThan(0);
-    else expect(strength).toBe(0);
+    expect(strength > 0).toBe(progress > 0.48);
   }
   expect(pointer.needsFrame()).toBe(false);
+});
+
+test("motion follows cursor direction, then decays without ongoing displacement", () => {
+  move(500, 250);
+  settle();
+  move(700, 150);
+  pointer.step(1 / 60);
+  expect(pointer.value.velocityX).toBeGreaterThan(0);
+  expect(pointer.value.velocityY).toBeGreaterThan(0);
+  expect(pointer.needsFrame()).toBe(true);
+  settle();
+  expect(pointer.value.velocityX).toBe(0);
+  expect(pointer.value.velocityY).toBe(0);
+  expect(pointer.needsFrame()).toBe(false);
+  expect(pointer.value.strength).toBe(1);
+});
+
+test("velocity is time based and lifecycle clearing removes residual motion", () => {
+  move(500, 250);
+  settle();
+  move(700, 250);
+  pointer.step(1 / 60);
+  const first = pointer.value.velocityX;
+  expect(first).toBeGreaterThan(0);
+  pointer.setEnabled(false);
+  expect(pointer.value.velocityX).toBe(0);
+  expect(pointer.needsFrame()).toBe(false);
+  pointer.setEnabled(true);
+  move(500, 250);
+  pointer.step(1 / 60);
+  expect(pointer.value.velocityX).toBe(0);
+  pointer.step(0);
+  expect(pointer.value.velocityX).toBe(0);
 });
 
 test("touch and coarse pointers never start hover interaction; capability loss and blur clear it", () => {
