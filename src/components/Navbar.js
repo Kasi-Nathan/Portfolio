@@ -3,7 +3,8 @@ import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
-import { Link, NavLink } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { HOME_SECTIONS, scrollToHomeSection, visibleHomeSection } from "./homeSectionNavigation";
 import { CgGitFork } from "react-icons/cg";
 import {
   AiFillStar,
@@ -15,17 +16,31 @@ import {
 function NavBar() {
   const [expand, updateExpanded] = useState(false);
   const [navColour, updateNavbar] = useState(false);
+  const [activeSection, setActiveSection] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
     function scrollHandler() {
       updateNavbar(window.scrollY >= 20);
+      setActiveSection(location.pathname === "/" ? visibleHomeSection() : null);
     }
 
     window.addEventListener("scroll", scrollHandler);
+    window.addEventListener("resize", scrollHandler);
     scrollHandler();
 
-    return () => window.removeEventListener("scroll", scrollHandler);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", scrollHandler);
+      window.removeEventListener("resize", scrollHandler);
+    };
+  }, [location.pathname]);
+
+  function navigateToSection(hash) {
+    updateExpanded(false);
+    if (location.pathname === "/" && location.hash === hash) {
+      scrollToHomeSection(hash);
+    }
+  }
 
   return (
     <Navbar
@@ -35,7 +50,7 @@ function NavBar() {
       className={navColour ? "sticky" : "navbar"}
     >
       <Container>
-      <Navbar.Brand as={Link} to="/" aria-label="Go to home" className="site-brand">
+      <Navbar.Brand as={Link} to="/" onClick={() => navigateToSection(HOME_SECTIONS.home)} aria-label="Go to home" className="site-brand">
         <span className="site-mark" aria-hidden="true">KN</span>
         <span className="site-wordmark">
           <strong>Kasi Nathan Murugan</strong>
@@ -54,18 +69,22 @@ function NavBar() {
           <span></span>
         </Navbar.Toggle>
         <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="ms-auto" defaultActiveKey="#home">
+          <Nav className="ms-auto">
             <Nav.Item>
-              <Nav.Link as={NavLink} to="/" end onClick={() => updateExpanded(false)}>
+              <Nav.Link as={Link} to="/" className={activeSection === "home" ? "active" : ""}
+                aria-current={activeSection === "home" ? "location" : undefined}
+                onClick={() => navigateToSection(HOME_SECTIONS.home)}>
                 <AiOutlineHome style={{ marginBottom: "2px" }} /> Home
               </Nav.Link>
             </Nav.Item>
 
             <Nav.Item>
               <Nav.Link
-                as={NavLink}
-                to="/about"
-                onClick={() => updateExpanded(false)}
+                as={Link}
+                to={`/${HOME_SECTIONS.about}`}
+                className={activeSection === "about" ? "active" : ""}
+                aria-current={activeSection === "about" ? "location" : undefined}
+                onClick={() => navigateToSection(HOME_SECTIONS.about)}
               >
                 <AiOutlineUser style={{ marginBottom: "2px" }} /> About
               </Nav.Link>
@@ -73,9 +92,11 @@ function NavBar() {
 
             <Nav.Item>
               <Nav.Link
-                as={NavLink}
-                to="/project"
-                onClick={() => updateExpanded(false)}
+                as={Link}
+                to={`/${HOME_SECTIONS.projects}`}
+                className={activeSection === "projects" ? "active" : ""}
+                aria-current={activeSection === "projects" ? "location" : undefined}
+                onClick={() => navigateToSection(HOME_SECTIONS.projects)}
               >
                 <AiOutlineFundProjectionScreen
                   style={{ marginBottom: "2px" }}

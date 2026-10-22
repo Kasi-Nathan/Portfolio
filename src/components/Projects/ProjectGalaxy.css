@@ -25,7 +25,7 @@
 .galaxy-world--6 { --x: 62%; --y: 81%; --size: 87px; --light: #b7d6f3; --mid: #5c71b3; --dark: #27315e; }
 .galaxy-world--7 { --x: 39%; --y: 85%; --size: 78px; --light: #ddc1e9; --mid: #9360a9; --dark: #3c295b; }
 .galaxy-world__planet { position: relative; display: block; width: var(--size); height: var(--size); filter: drop-shadow(0 0 14px color-mix(in srgb, var(--mid) 42%, transparent)); animation: galaxy-float 8s ease-in-out infinite alternate; transition: filter .25s; }
-.galaxy-world__name { max-width: 150px; font-family: var(--space-mono, monospace); font-size: .68rem; line-height: 1.35; text-align: center; text-wrap: balance; opacity: .68; transition: opacity .2s, color .2s; }
+.galaxy-world__name { max-width: 150px; color: #d7e5ef; font-family: var(--space-mono, monospace); font-size: .9rem; line-height: 1.35; text-align: center; text-wrap: balance; opacity: 1; transition: opacity .2s, color .2s; }
 .galaxy-world:hover .galaxy-world__name, .galaxy-world:focus-visible .galaxy-world__name, .galaxy-world--selected .galaxy-world__name { color: #edfaff; opacity: 1; }
 .galaxy-world:hover .galaxy-world__planet, .galaxy-world:focus-visible .galaxy-world__planet, .galaxy-world--selected .galaxy-world__planet { filter: brightness(1.24) drop-shadow(0 0 20px var(--mid)); }
 .galaxy-world:focus-visible { outline: 2px solid #9bd6e6; outline-offset: 4px; }
@@ -35,10 +35,10 @@
 .galaxy-panel__content { animation: galaxy-panel-enter .3s ease-out both; }
 .galaxy-panel h2 { font-size: clamp(2rem, 3vw, 3.2rem); font-weight: 500; letter-spacing: -.055em; }
 .galaxy-panel__summary { color: #bdcad8; line-height: 1.75; }
-.galaxy-panel__description { color: #9eafc0; line-height: 1.7; font-size: .9rem; }
+.galaxy-panel__description { color: #bfcedb; line-height: 1.7; font-size: 1rem; }
 .galaxy-panel img, .galaxy-image-fallback { display: grid; width: 100%; max-height: 240px; min-height: 170px; margin: 1.5rem 0; object-fit: contain; place-items: center; color: #9bb3c7; background: #111a29; border: 1px solid rgba(160, 195, 220, .23); }
 .galaxy-panel__tags { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0; list-style: none; }
-.galaxy-panel__tags li { padding: .35rem .5rem; color: #b7d6e5; font-size: .73rem; border: 1px solid rgba(141, 196, 221, .26); }
+.galaxy-panel__tags li { padding: .35rem .5rem; color: #c9e2ed; font-size: .85rem; border: 1px solid rgba(141, 196, 221, .26); }
 .galaxy-panel__links { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
 .galaxy-panel__links a { color: #a9ddec; text-decoration: none; border-bottom: 1px solid rgba(160, 215, 231, .6); }
 .galaxy-panel__links a:focus-visible { outline: 2px solid #9bd6e6; outline-offset: 4px; }

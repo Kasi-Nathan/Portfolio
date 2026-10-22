@@ -7,18 +7,18 @@
 .home-supernova-fallback { background: radial-gradient(1px 1px at 23px 57px, #a8b9dc 90%, transparent) 0 0 / 233px 211px, radial-gradient(1px 1px at 97px 131px, #a7d9ee 90%, transparent) 0 0 / 167px 173px, radial-gradient(1px 1px at 211px 43px, #b8a7dc 90%, transparent) 0 0 / 307px 239px, #070812; }
 .home-supernova-fallback::after { content: ""; position: absolute; inset: 0; opacity: var(--nebula-reveal, 0); background: radial-gradient(ellipse at 76% 44%, rgba(66,172,207,.42), transparent 32%), radial-gradient(ellipse at 57% 62%, rgba(137,65,192,.5), transparent 39%), radial-gradient(ellipse at 65% 51%, rgba(7,8,18,.8), transparent 14%); }
 .home-supernova-journey { position: relative; z-index: 1; --hero-reveal: 0; --hero-offset: 24px; --designation-opacity: 1; --opening-copy-offset: 0px; }
-/* The stage holds the completed introduction for the last 40% of its travel.
-   Tall mobile heroes keep their natural height and scroll normally on release. */
-.home-supernova-journey::after { content: ""; display: block; height: 260vh; height: 260svh; }
+/* Keep the opening journey compact so the planet follows the galaxy promptly. */
+.home-supernova-journey::after { content: ""; display: block; height: 220vh; height: 220svh; }
 .home-supernova-stage { position: sticky; top: 0; }
 .home-stellar-opening { position: absolute; inset: 0 0 auto; z-index: 2; height: 100vh; height: 100svh; padding: clamp(100px, 13svh, 140px) 24px 72px; text-align: center; pointer-events: none; }
 .home-stellar-designation { opacity: var(--designation-opacity); transform: translateY(var(--opening-copy-offset)); }
 .home-supernova-journey[data-opening-visible="false"] .home-stellar-designation { visibility: hidden; }
-.home-stellar-kicker { margin: 0; color: #98c9d9; font-family: var(--space-mono, monospace); font-size: .68rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.home-stellar-kicker { margin: 0; color: #b8e1eb; font-family: var(--space-mono, monospace); font-size: .85rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; text-shadow: 0 2px 12px #070812; }
 .home-stellar-headline { max-width: 16ch; margin: .8rem auto 1rem; color: #f2f6fb; font-size: clamp(3.2rem, 6vw, 6.2rem); font-weight: 500; letter-spacing: -.065em; line-height: .97; text-wrap: balance; text-shadow: 0 5px 30px #070812; }
 .home-stellar-classification { max-width: 50ch; margin: 0 auto; color: #c2d0dc; font-size: clamp(.95rem, 1.25vw, 1.12rem); line-height: 1.65; text-shadow: 0 3px 18px #070812; }
-.home-stellar-name { margin: 1.1rem 0 0; color: #8facbf; font-family: var(--space-mono, monospace); font-size: .62rem; letter-spacing: .22em; }
-.home-stellar-skip { position: absolute; bottom: 28px; left: 50%; margin: 0; transform: translateX(-50%); color: #b9d1df; font-family: var(--space-mono, monospace); font-size: .7rem; letter-spacing: .1em; white-space: nowrap; opacity: var(--designation-opacity); }
+.home-stellar-role { margin: .9rem auto 0; color: #e2ecf5; font-size: 1rem; letter-spacing: .06em; text-shadow: 0 2px 14px #070812; }
+.home-stellar-name { margin: 1.1rem 0 0; color: #b3cadb; font-family: var(--space-mono, monospace); font-size: .8rem; letter-spacing: .18em; }
+.home-stellar-skip { position: absolute; bottom: 28px; left: 50%; margin: 0; transform: translateX(-50%); color: #d2e3ed; font-family: var(--space-mono, monospace); font-size: .85rem; letter-spacing: .08em; white-space: nowrap; opacity: var(--designation-opacity); }
 .home-stellar-skip span { display: inline-block; margin-left: .5rem; color: #8ccbdc; }
 .home-stellar-a11y-skip { position: absolute; top: 16px; left: 16px; padding: .6rem .8rem; color: #fff; background: #091322; transform: translateY(-200%); pointer-events: auto; }
 .home-stellar-a11y-skip:focus-visible { transform: none; outline: 2px solid #8fd5ed; outline-offset: 3px; }
@@ -31,10 +31,10 @@
 .home-supernova-journey[data-hero-interactive="true"] .home-intro { pointer-events: auto; }
 .portfolio-home .home-intro:focus-within { opacity: 1; transform: none; pointer-events: auto; }
 .home-intro-copy { position: relative; z-index: 2; width: min(62%, 850px); }
-.home-intro-kicker { margin-bottom: 1.4rem; color: #94c9d8; font-size: .7rem; font-weight: 600; letter-spacing: .24em; text-transform: uppercase; }
+.home-intro-kicker { margin-bottom: 1.4rem; color: #b8e1eb; font-size: .85rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; }
 .portfolio-home .home-intro h1 { margin: 0; color: #eef4fa; font-size: clamp(4.5rem, 9vw, 10rem); font-weight: 500; letter-spacing: -.075em; line-height: .88; white-space: nowrap; text-shadow: 0 8px 42px rgba(7,8,18,.65); }
 .portfolio-home .home-intro h1 span { color: #b6c9e4; }
-.home-intro-subtitle { margin: 2rem 0 0; color: #c5cad8; font-size: clamp(.85rem, 1.3vw, 1.15rem); letter-spacing: .14em; }
+.home-intro-subtitle { margin: 2rem 0 0; color: #e0e6ef; font-size: clamp(1rem, 1.3vw, 1.15rem); letter-spacing: .1em; }
 .home-intro-planet-fallback { display: none; }
 .home-supernova-journey[data-fallback="true"] .home-intro-planet-fallback { position: absolute; right: 9%; top: 30%; display: block; width: 28vmin; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle at 36% 30%, #6386a8, #30294a 65%, #111525); box-shadow: 0 0 28px #6c77b533; }
 .home-supernova-journey[data-fallback="true"] .home-intro-planet-fallback::after { position: absolute; inset: 35% -33%; border: 2px solid #a2a0c299; border-radius: 50%; transform: rotate(-19deg); content: ""; }
@@ -42,7 +42,7 @@
 .portfolio-home .home-section-heading, .portfolio-home .home-centered-heading, .portfolio-home .home-build-intro { text-shadow: 0 2px 14px #070812; }
 /* Keep the existing contact content protected while the cloud fills the
    surrounding viewport; no separate finale section or renderer. */
-.portfolio-home .home-about-section .contact-cta-section { position: relative; width: min(48%, 35rem); margin: clamp(40px, 6vw, 88px) auto 0 0; padding: clamp(26px, 3vw, 44px); text-align: left; background: rgba(9,11,24,.96); border-color: rgba(150,180,215,.23); box-shadow: 0 14px 40px rgba(0,0,0,.2); }
+.portfolio-home .home-about-section .contact-cta-section { position: relative; width: min(50%, 36rem); margin: clamp(40px, 6vw, 88px) auto 0 0; padding: clamp(26px, 3vw, 44px); text-align: left; background: linear-gradient(115deg, rgba(9, 15, 30, .78), rgba(16, 25, 46, .56)); border-color: rgba(150,180,215,.32); box-shadow: 0 14px 40px rgba(0,0,0,.16); backdrop-filter: blur(8px); }
 .portfolio-home .contact-cta-section h2 { font-size: clamp(1.8rem, 2.7vw, 2.5rem); line-height: 1.16; text-wrap: balance; }
 .portfolio-home .contact-cta-section p { margin-inline: 0; font-size: 1rem; line-height: 1.75; }
 .portfolio-home .contact-cta-actions { justify-content: flex-start; }
@@ -55,15 +55,15 @@
   .home-stellar-opening { padding-inline: 16px; }
   .home-stellar-headline { max-width: 13ch; font-size: clamp(2.7rem, 10vw, 4.8rem); }
   .home-stellar-classification { max-width: 31ch; font-size: .95rem; }
-  .home-stellar-kicker { font-size: .56rem; }
-  .home-supernova-journey::after { height: 230svh; }
+  .home-stellar-kicker { font-size: .8rem; }
+  .home-supernova-journey::after { height: 180svh; }
   .portfolio-home .home-intro { min-height: 100svh; align-items: flex-start; padding: 16svh 24px 8svh; }
   .home-intro-copy { width: 100%; }
   .portfolio-home .home-intro h1 { font-size: clamp(3.5rem, 15vw, 6rem); }
   .home-intro-subtitle { max-width: 21ch; line-height: 1.5; }
 }
 @media (max-width: 991px) {
-  .portfolio-home .home-about-section .contact-cta-section { width: min(100%, 38rem); margin: clamp(96px, 20svh, 160px) auto 0; padding: clamp(24px, 4vw, 36px); text-align: center; }
+  .portfolio-home .home-about-section .contact-cta-section { width: min(100%, 38rem); margin: clamp(48px, 8svh, 80px) auto 0; padding: clamp(24px, 4vw, 36px); text-align: center; }
   .portfolio-home .contact-cta-actions { justify-content: center; }
   .home-supernova-fallback::after { background: radial-gradient(ellipse at 64% 20%, rgba(66,172,207,.42), transparent 30%), radial-gradient(ellipse at 32% 30%, rgba(137,65,192,.5), transparent 35%), radial-gradient(ellipse at 48% 26%, rgba(7,8,18,.8), transparent 12%); }
 }

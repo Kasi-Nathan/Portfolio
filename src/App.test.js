@@ -1,6 +1,6 @@
 /* Route tests inspect the shared canvas shell and use a table of route cases. */
 /* eslint-disable testing-library/no-container, testing-library/no-node-access, jest/no-conditional-expect */
-import { fireEvent, render, screen, cleanup } from '@testing-library/react';
+import { act, fireEvent, render, screen, cleanup } from '@testing-library/react';
 import App from './App';
 import projects from './data/projects.json';
 import routing from '../vercel.json';
@@ -9,7 +9,7 @@ jest.mock('aos', () => ({ init: jest.fn(), refreshHard: jest.fn() }));
 
 test('Vercel rewrites only production client routes, leaving APIs and assets alone', () => {
   expect(routing.rewrites.map(({ source }) => source).sort()).toEqual([
-    '/about', '/bonegallery', '/cryptogallery', '/gallery', '/project', '/project/:projectId',
+    '/about', '/bonegallery', '/cryptogallery', '/gallery', '/project', '/project/:projectId', '/projects',
   ]);
   expect(routing.rewrites.every(({ destination }) => destination === '/index.html')).toBe(true);
 });
@@ -29,7 +29,8 @@ test.each([
   ['/', /I build thoughtful digital products/i],
   ['/project', /Explore the universe/i],
   ['/project/bone-disease-prediction', /Bone Disease Prediction/i],
-  ['/about', /Curious by nature/i],
+  ['/about', /Beyond the stars/i],
+  ['/projects', /Ideas in orbit/i],
   ['/gallery', /Project Screenshots/i],
   ['/bonegallery', /Project Screenshots/i],
   ['/cryptogallery', /Project Screenshots/i],
@@ -50,20 +51,47 @@ test.each([
   expect(container.querySelectorAll('.space-background')).toHaveLength(1);
   expect(container.querySelector('.space-background')).toHaveAttribute('aria-hidden', 'true');
   expect(container.querySelector('.cursor-inner')).toBeNull();
-  expect(container.querySelectorAll('.home-supernova-layer canvas')).toHaveLength(route === '/' ? 1 : 0);
-  expect(container.querySelector('.space-background').classList.contains('space-background--supernova')).toBe(route === '/');
+  const homeRoute = route === '/' || route === '/about' || route === '/projects';
+  expect(container.querySelectorAll('.home-supernova-layer canvas')).toHaveLength(homeRoute ? 1 : 0);
+  expect(container.querySelector('.space-background').classList.contains('space-background--supernova')).toBe(homeRoute);
   expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+  if (route === '/about') expect(window.location.hash).toBe('#about');
+  if (route === '/projects') expect(window.location.hash).toBe('#featured-work');
+  if (route === '/about' || route === '/projects') {
+    act(() => { jest.advanceTimersByTime(1200); });
+    expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'smooth' }));
+  }
 });
 
-test('navigation retains every CMS project in the galaxy', () => {
+test('homepage navigation targets the new sections while the galaxy route retains every CMS project', () => {
   window.history.replaceState({}, '', '/');
   const { container } = render(<App />);
   fireEvent.click(screen.getByRole('link', { name: /^Projects$/i }));
-  expect(window.location.pathname).toBe('/project');
-  expect(container.querySelector('.home-supernova-layer')).toBeNull();
-  expect(container.querySelector('.space-background--supernova')).toBeNull();
-  expect(container.querySelectorAll('.galaxy-world')).toHaveLength(projects.projects.length);
+  expect(window.location.pathname).toBe('/');
+  expect(window.location.hash).toBe('#featured-work');
+  expect(container.querySelector('.home-supernova-layer')).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /Explore all projects/i })).toHaveAttribute('href', '/project');
+  window.history.replaceState({}, '', '/project');
+  cleanup();
+  const view = render(<App />);
+  expect(view.container.querySelector('.home-supernova-layer')).toBeNull();
+  expect(view.container.querySelector('.space-background--supernova')).toBeNull();
+  expect(view.container.querySelectorAll('.galaxy-world')).toHaveLength(projects.projects.length);
   expect(screen.getByRole('heading', { name: /Explore the universe/i })).toBeInTheDocument();
+});
+
+test('section navigation works from a project detail page and Home returns to the opening', () => {
+  window.history.replaceState({}, '', '/project/bone-disease-prediction');
+  render(<App />);
+  act(() => { jest.advanceTimersByTime(1200); });
+  fireEvent.click(screen.getByRole('link', { name: /^About$/i }));
+  expect(window.location.pathname).toBe('/');
+  expect(window.location.hash).toBe('#about');
+  expect(screen.getByRole('heading', { name: /Beyond the stars/i })).toBeInTheDocument();
+  expect(window.scrollTo).toHaveBeenCalledWith(expect.objectContaining({ behavior: 'smooth' }));
+  fireEvent.click(screen.getByRole('link', { name: /^Home$/i }));
+  expect(window.location.hash).toBe('');
+  expect(window.scrollTo).toHaveBeenLastCalledWith({ top: 0, behavior: 'smooth' });
 });
 
 test('unknown routes retain the Home fallback', () => {

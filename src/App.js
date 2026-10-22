@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import Preloader from "../src/components/Pre";
 import Navbar from "./components/Navbar";
 import Home from "./components/Home/Home";
-import About from "./components/About/About";
 import Projects from "./components/Projects/Projects";  // Your existing Projects component
 import ProjectDetail from "./components/Projects/ProjectDetail";
 import { ProjectWormholeProvider } from "./components/Projects/ProjectWormhole";
@@ -50,12 +49,13 @@ function App() {
       <Preloader load={load} />
       <div className="App" id={load ? "no-scroll" : "scroll"}>
         <Navbar />
-        <ScrollToTop />
+        <ScrollToTop ready={!load} />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project" element={<Projects />} />
           <Route path="/project/:projectId" element={<ProjectDetail />} />
-          <Route path="/about" element={<About />} />
+          <Route path="/about" element={<Navigate to="/#about" replace />} />
+          <Route path="/projects" element={<Navigate to="/#featured-work" replace />} />
           <Route path="/gallery" element={<ImageGallery />} />
           <Route path="/bonegallery" element={<BoneGallery />} />
           <Route path="/cryptogallery" element={<CryptoGallery />} />
