@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from "react";
 import "./SupernovaHome.css";
 import { formationHaze } from "./SupernovaFormation";
 
-// Use the first 60% of sticky travel for the cinematic transition, leaving
-// the rest for the fully revealed introduction before Projects enters.
+// The scene's opening range is 0–0.72; the rest remains reserved for the
+// contact nebula. Use nearly all of the pinned journey for galaxy travel.
 export function homepageProgress(top, travel) {
-  return Math.min(0.72, Math.max(0, -top / Math.max(1, travel * 0.6)) * 0.72);
+  return Math.min(0.72, journeyPosition(top, travel) / 0.88 * 0.72);
 }
 
 export function journeyPosition(top, travel) {
@@ -18,11 +18,11 @@ function smoothReveal(start, end, progress) {
 }
 
 export function planetFormation(position) {
-  return smoothReveal(0.4, 0.57, position) * (1 - smoothReveal(0.8, 0.97, position));
+  return smoothReveal(0.54, 0.76, position) * (1 - smoothReveal(0.94, 1, position));
 }
 
 export function homepageReveal(position) {
-  return smoothReveal(0.48, 0.61, position) * (1 - smoothReveal(0.84, 0.97, position));
+  return smoothReveal(0.66, 0.80, position) * (1 - smoothReveal(0.95, 1, position));
 }
 
 export function finaleAmount(scroll, openingEnd, contactTop, homeBottom, viewport, maxScroll) {
@@ -101,7 +101,7 @@ export default function SupernovaHome({ children }) {
       const reveal = preference?.matches || focusedHero || unavailable ? 1 : homepageReveal(position);
       opening.style.setProperty("--hero-reveal", reveal);
       opening.style.setProperty("--hero-offset", `${(1 - reveal) * 24}px`);
-      const openingFade = smoothReveal(0.015, 0.15, position);
+      const openingFade = smoothReveal(0.46, 0.72, position);
       opening.style.setProperty("--designation-opacity", 1 - openingFade);
       opening.style.setProperty("--opening-copy-offset", `${-18 * openingFade}px`);
       opening.dataset.openingVisible = String(openingFade < 0.98 && !preference?.matches && !unavailable);
@@ -188,9 +188,10 @@ export default function SupernovaHome({ children }) {
       <div ref={stageRef} className="home-supernova-stage">
       <div className="home-stellar-opening">
         <div className="home-stellar-designation">
-          <p className="home-stellar-kicker">KASI NATHAN / DIGITAL UNIVERSE</p>
+          <p className="home-stellar-kicker">KASI NATHAN MURUGAN / DEVELOPER</p>
           <h1 className="home-stellar-headline">Every idea begins with a spark.</h1>
           <p className="home-stellar-classification">I build intelligent systems and interactive digital experiences. Step inside my universe.</p>
+          <p className="home-stellar-role">Developer · Creative Technologist</p>
           <p className="home-stellar-name">CYGNUS-01</p>
         </div>
         <p className="home-stellar-skip">Scroll to ignite the universe <span aria-hidden="true">↓</span></p>

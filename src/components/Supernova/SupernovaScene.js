@@ -24,8 +24,40 @@ export function ambientStarBudget(width, hardwareThreads = 8) {
 }
 
 export function travelAmount(progress) {
-  const value = Math.max(0, Math.min(1, (progress - 0.18) / 0.43));
+  const value = Math.max(0, Math.min(1, (progress - 0.29) / 0.285));
   return value * value * (3 - 2 * value);
+}
+
+function approachEnvelope(progress) {
+  const smooth = (start, end) => {
+    const t = Math.max(0, Math.min(1, (progress - start) / (end - start)));
+    return t * t * (3 - 2 * t);
+  };
+  return smooth(0.105, 0.25) * (1 - smooth(0.33, 0.47));
+}
+
+export function cameraJourney(progress, target = { x: 0, y: 0, z: 38 }) {
+  const t = Math.max(0, Math.min(1, (progress - 0.105) / 0.54));
+  const ramp = 0.18;
+  const distance = t < ramp ? t * t / (2 * ramp * (1 - ramp))
+    : t > 1 - ramp ? 1 - (1 - t) * (1 - t) / (2 * ramp * (1 - ramp))
+      : (t - ramp * 0.5) / (1 - ramp);
+  // Enter an outer arm while the core stays to the right of the flight path.
+  // Rejoin the original corridor before the established long-distance travel.
+  const approach = approachEnvelope(progress);
+  target.x = -11 * approach + Math.sin(Math.PI * distance) * (2.3 * Math.sin(2 * Math.PI * distance)
+    + 0.7 * Math.sin(4 * Math.PI * distance));
+  target.y = -7 * approach + Math.sin(Math.PI * distance) * (1.3 * Math.sin(Math.PI * distance)
+    - 0.8 * Math.sin(3 * Math.PI * distance));
+  target.z = 38 - 133 * distance;
+  return target;
+}
+
+export function cameraAim(progress, target = { x: 0, y: 0 }) {
+  const approach = approachEnvelope(progress);
+  target.x = 4 * approach;
+  target.y = 1.5 * approach;
+  return target;
 }
 
 export function shaderProgramsHealthy(programs = []) {
@@ -79,22 +111,37 @@ export function createParticleAttributes(count) {
 
   for (let index = 0; index < count; index += 1) {
     const offset = index * 3;
-    // Four wound arms surround a dense stellar bulge. A small diffuse cohort
-    // softens the arm boundaries while narrow under-filled lanes retain shape.
+    // Reserve a few diffuse points for broad, faint arm light instead of
+    // spreading all of them uniformly through the dark inter-arm regions.
     const cohort = random();
-    const kind = cohort < 0.22 ? 0 : cohort < 0.9 ? 1 : 2;
+    const kind = cohort < 0.22 ? 0 : cohort < 0.9 ? 1 : cohort < 0.965 ? 2 : 3;
     const arm = index % 4;
-    const radius = kind === 0 ? Math.sqrt(random()) * 2.4
-      : kind === 1 ? 1.2 + Math.pow(random(), 0.8) * 11.2
+    const radius = kind === 0 ? Math.pow(random(), 1.35) * 2.8
+      : kind === 1 || kind === 3 ? 1.2 + Math.pow(random(), 0.8) * 11.2
         : Math.sqrt(random()) * 12.4;
-    const armSpread = kind === 1 ? randomNormal(random) * (0.09 + radius * 0.006) : 0;
-    const angle = kind === 1
-      ? arm * Math.PI * 0.5 + radius * 0.48 + armSpread
+    const armWobble = Math.sin(radius * 1.18 + arm * 1.7) * 0.105
+      + Math.sin(radius * 2.35 - arm * 0.8) * 0.045;
+    const knot = 0.5 + 0.5 * Math.sin(radius * 2.1 + arm * 2.4)
+      * Math.sin(radius * 0.93 - arm * 1.3);
+    const armSpread = kind === 1 || kind === 3
+      ? randomNormal(random) * (kind === 3 ? 0.24 : 0.055 + radius * 0.005 + (1 - knot) * 0.04) : 0;
+    const angle = kind === 1 || kind === 3
+      ? arm * Math.PI * 0.5 + radius * 0.48 + armWobble + armSpread
       : random() * Math.PI * 2;
-    const lane = kind === 1 && radius > 3.2 && Math.abs(armSpread) < 0.035 ? 0.28 : 1;
+    // A thin dim band on the trailing edge reads as a dust lane between the
+    // luminous ridge and the next, much sparser part of the disc.
+    const lane = kind === 1 && radius > 3.2 && armSpread < -0.035 && armSpread > -0.115
+      ? 0.16 : kind === 1 ? 0.64 + knot * 0.36 : 1;
     starPositions[offset] = Math.cos(angle) * radius;
     starPositions[offset + 1] = Math.sin(angle) * radius;
-    starPositions[offset + 2] = randomNormal(random) * (kind === 0 ? 0.9 : 0.16 + radius * 0.03);
+    // Most stars remain in a legible spiral disc. A smaller arm cohort forms
+    // knots above and below it, which separates into foreground/background
+    // layers as the camera approaches at an angle.
+    const armCluster = kind === 1 && random() < 0.17;
+    starPositions[offset + 2] = randomNormal(random) * (kind === 0 ? 1.35
+      : kind === 1 ? (armCluster ? 2.1 + radius * 0.16 : 0.45 + radius * 0.075)
+        : kind === 3 ? 0.85 + radius * 0.1
+        : 1.4 + radius * 0.12);
     galaxyData[index * 4] = radius / 12.4;
     galaxyData[index * 4 + 1] = kind;
     galaxyData[index * 4 + 2] = arm;
@@ -103,7 +150,7 @@ export function createParticleAttributes(count) {
     const dustRadius = 6 + Math.sqrt(random()) * 17;
     dustPositions[offset] = Math.cos(dustAngle) * dustRadius;
     dustPositions[offset + 1] = Math.sin(dustAngle) * dustRadius * 0.58;
-    dustPositions[offset + 2] = -6 - random() * 22;
+    dustPositions[offset + 2] = -112 - random() * 55;
     turbulence[offset] = random() * Math.PI * 2;
     turbulence[offset + 1] = random() * Math.PI * 2;
     turbulence[offset + 2] = 0.35 + random() * 0.9;
@@ -164,6 +211,106 @@ export function createParticleAttributes(count) {
   return { starPositions, dustPositions, nebulaPositions, planetPositions, galaxyData, turbulence, sizes, seeds };
 }
 
+export function createGalaxyRibbonAttributes(segments = 64, layers = 3) {
+  const positions = [];
+  const coordinates = [];
+  const armIds = [];
+  const addVertex = (radius, side, arm, layer) => {
+    const wobble = Math.sin(radius * 1.18 + arm * 1.7) * 0.105
+      + Math.sin(radius * 2.35 - arm * 0.8) * 0.045;
+    const angle = arm * Math.PI * 0.5 + radius * 0.48 + wobble
+      + side * (0.13 + radius * 0.009);
+    positions.push(Math.cos(angle) * radius, Math.sin(angle) * radius,
+      (layer - (layers - 1) * 0.5) * 1.7 + Math.sin(radius * 1.4 + arm) * 0.3 + side * 0.32);
+    coordinates.push(radius / 12.4, side);
+    armIds.push(arm);
+  };
+  for (let layer = 0; layer < layers; layer += 1) {
+    for (let arm = 0; arm < 4; arm += 1) {
+      for (let segment = 0; segment < segments; segment += 1) {
+        const near = 1.15 + segment * 11.25 / segments;
+        const far = 1.15 + (segment + 1) * 11.25 / segments;
+        addVertex(near, -1, arm, layer);
+        addVertex(far, -1, arm, layer);
+        addVertex(near, 1, arm, layer);
+        addVertex(near, 1, arm, layer);
+        addVertex(far, -1, arm, layer);
+        addVertex(far, 1, arm, layer);
+      }
+    }
+  }
+  return { positions: new Float32Array(positions), coordinates: new Float32Array(coordinates),
+    armIds: new Float32Array(armIds) };
+}
+
+const galaxyRibbonVertexShader = `
+  attribute vec2 aRibbon;
+  attribute float aArm;
+  uniform vec2 uGalaxyScale;
+  uniform float uTime;
+  varying vec2 vRibbon;
+  varying float vArm;
+  void main() {
+    float radius = length(position.xy);
+    float turn = uTime * (0.013 / (1.0 + radius * 0.12));
+    vec2 orbit = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * position.xy;
+    vec3 world = vec3(orbit.x * uGalaxyScale.x,
+      orbit.y * 0.62 * uGalaxyScale.y - position.z * 0.78 - 3.5,
+      orbit.y * 0.78 + position.z * 0.62);
+    vRibbon = aRibbon;
+    vArm = aArm;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(world, 1.0);
+  }
+`;
+
+const galaxyRibbonFragmentShader = `
+  uniform float uVisibility;
+  varying vec2 vRibbon;
+  varying float vArm;
+  void main() {
+    float side = vRibbon.y;
+    float radial = vRibbon.x;
+    float ridge = 1.0 - smoothstep(0.18, 0.92, abs(side));
+    float outer = smoothstep(0.02, 0.17, radial) * (1.0 - smoothstep(0.78, 1.0, radial));
+    float cloud = 0.65 + 0.2 * sin(radial * 71.0 + vArm * 2.7)
+      + 0.15 * sin(radial * 139.0 - side * 8.0 + vArm);
+    float lane = 1.0 - 0.86 * exp(-pow((side + 0.48) * 13.0, 2.0));
+    float alpha = ridge * outer * max(0.0, cloud) * lane * uVisibility * 0.17;
+    vec3 cool = vArm < 0.5 ? vec3(0.24, 0.63, 0.9)
+      : vArm < 1.5 ? vec3(0.42, 0.38, 0.78)
+        : vArm < 2.5 ? vec3(0.65, 0.27, 0.57) : vec3(0.27, 0.63, 0.78);
+    vec3 color = mix(vec3(0.82, 0.59, 0.35), cool, smoothstep(0.04, 0.38, radial));
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
+const galaxyCoreVertexShader = `
+  uniform vec2 uGalaxyScale;
+  varying float vFacing;
+  varying float vHeight;
+  void main() {
+    vec3 world = vec3(position.x * uGalaxyScale.x,
+      position.y * 0.62 * uGalaxyScale.y - position.z * 0.78 - 3.5,
+      position.y * 0.78 + position.z * 0.62);
+    vec4 view = modelViewMatrix * vec4(world, 1.0);
+    vFacing = abs(dot(normalize(normalMatrix * normal), normalize(-view.xyz)));
+    vHeight = position.z;
+    gl_Position = projectionMatrix * view;
+  }
+`;
+
+const galaxyCoreFragmentShader = `
+  uniform float uVisibility;
+  varying float vFacing;
+  varying float vHeight;
+  void main() {
+    float alpha = pow(vFacing, 3.0) * uVisibility * 0.2;
+    vec3 color = mix(vec3(0.94, 0.58, 0.3), vec3(1.0, 0.89, 0.66),
+      0.5 + 0.5 * clamp(vHeight / 2.8, -1.0, 1.0));
+    gl_FragColor = vec4(color, alpha);
+  }
+`;
+
 const particleVertexShader = `
   attribute vec3 aDustPosition;
   attribute vec3 aNebulaPosition;
@@ -194,8 +341,10 @@ const particleVertexShader = `
   varying float vHaloStrength;
 
   void main() {
-    float loosen = smoothstep(0.12, 0.36, uProgress);
-    float settle = smoothstep(0.25 + aSeed * 0.035, 0.59, uProgress);
+    float loosen = smoothstep(0.23, 0.37, uProgress);
+    // Stagger the long depth transfer so the galaxy crosses the camera in
+    // many small cohorts, with distant dust already visible ahead.
+    float settle = smoothstep(0.3 + aSeed * 0.12, 0.62 + aSeed * 0.035, uProgress);
     float nebulaArrival = smoothstep(${FORMATION.start} + aSeed * ${FORMATION.startSpread}, ${FORMATION.end} + aSeed * ${FORMATION.endSpread}, uProgress);
     float radius = length(position.xy);
     float turn = uMotionTime * (0.013 / (1.0 + radius * 0.12)) * uMotionProfile.x;
@@ -206,12 +355,15 @@ const particleVertexShader = `
     vec3 separation = vec3(cos(aTurbulence.x), sin(aTurbulence.x),
       sin(aTurbulence.y)) * (1.4 + 3.8 * aSeed) * loosen * (1.0 - settle);
     vec3 particlePosition = mix(galaxyPosition + separation, aDustPosition, settle);
+    float forwardPulse = smoothstep(0.3, 0.43, uProgress)
+      * (1.0 - smoothstep(0.48, 0.6, uProgress));
+    particlePosition.z += forwardPulse * (2.0 + aSeed * 7.0);
     particlePosition.xy += vec2(sin(uMotionTime * 0.17 + aTurbulence.x),
       cos(uMotionTime * 0.14 + aTurbulence.y)) * 0.16 * (1.0 - uPlanetAmount);
 
     vec4 viewPosition = modelViewMatrix * vec4(particlePosition, 1.0);
     if (nebulaArrival > 0.0) {
-      vec4 destination = modelViewMatrix * vec4(aNebulaPosition * uNebulaScale, 1.0);
+      vec4 destination = modelViewMatrix * vec4(aNebulaPosition * uNebulaScale + vec3(0.0, 0.0, -133.0), 1.0);
       destination.z = min(destination.z, -18.0);
       vec4 projectedDestination = projectionMatrix * destination;
       vec2 targetNdc = projectedDestination.xy / projectedDestination.w + uNebulaCenter;
@@ -248,7 +400,12 @@ const particleVertexShader = `
 
     // Most dust gathers into the planet; a small seed cohort remains in the
     // surrounding field. Its positions stay deterministic as scroll reverses.
-    float planetBlend = uPlanetAmount * smoothstep(0.08, 0.18, aSeed);
+    // The body gathers first. Ring particles follow while the remaining dust
+    // stays in the corridor, giving the arrival a readable silhouette.
+    float arrival = aPlanetPosition.w > 0.5
+      ? smoothstep(0.26, 1.0, uPlanetAmount)
+      : smoothstep(0.0, 0.76, uPlanetAmount);
+    float planetBlend = arrival * smoothstep(0.08, 0.18, aSeed);
     vec3 planetLocal = aPlanetPosition.xyz;
     if (aPlanetPosition.w > 0.5) {
       float ringY = (aPlanetPosition.y - aPlanetPosition.x * 0.12) / 0.34;
@@ -264,11 +421,11 @@ const particleVertexShader = `
         aPlanetPosition.x * cos(turn) - aPlanetPosition.z * sin(turn),
         aPlanetPosition.x * sin(turn) + aPlanetPosition.z * cos(turn));
     }
-    vec3 planetPosition = vec3(
+    vec3 planetWorld = vec3(
       uPlanetCenter.x * 38.0 / projectionMatrix[0][0],
-      uPlanetCenter.y * 38.0 / projectionMatrix[1][1], -38.0
+      uPlanetCenter.y * 38.0 / projectionMatrix[1][1], -133.0
     ) + planetLocal * uPlanetRadius;
-    viewPosition.xyz = mix(viewPosition.xyz, planetPosition, planetBlend);
+    viewPosition.xyz = mix(viewPosition.xyz, (viewMatrix * vec4(planetWorld, 1.0)).xyz, planetBlend);
 
     // Work in projected, aspect-correct coordinates so interaction follows
     // the canvas and camera view offset, including the finale's framing.
@@ -297,7 +454,9 @@ const particleVertexShader = `
     }
     gl_Position = projectionMatrix * viewPosition;
     float depthScale = clamp(38.0 / max(12.0, -viewPosition.z), 0.62, 1.75);
-    float galaxyPointScale = aGalaxyData.y < 0.5 ? 1.4 + aSeed * 0.55 : 0.8 + aSeed * 0.65;
+    float galaxyPointScale = aGalaxyData.y < 0.5 ? 1.15 + aSeed * 0.75
+      : aGalaxyData.y > 2.5 ? 2.0 + aSeed * 0.9
+        : 0.62 + aSeed * 0.77;
     float pointScale = mix(galaxyPointScale, mix(0.8, 1.5, aSeed), settle);
     float nebulaDepth = clamp((aNebulaPosition.z + 12.0) / 24.0, 0.0, 1.0);
     pointScale = mix(pointScale, mix(1.05, 1.65, aSeed) * mix(0.8, 1.22, nebulaDepth), nebulaArrival);
@@ -308,15 +467,17 @@ const particleVertexShader = `
     gl_PointSize = clamp(aPointSize * pointScale * uPixelRatio * depthScale, 1.0, 14.0);
 
     vec3 dustColor = mix(vec3(0.42, 0.76, 0.96), vec3(0.75, 0.64, 0.98), aSeed);
-    vec3 armColor = aGalaxyData.z < 0.5 ? vec3(0.43, 0.81, 1.0)
-      : aGalaxyData.z < 1.5 ? vec3(0.56, 0.57, 0.98)
-        : aGalaxyData.z < 2.5 ? vec3(0.91, 0.46, 0.78) : vec3(0.64, 0.88, 1.0);
-    armColor = mix(armColor, vec3(0.9, 0.94, 1.0), aSeed * 0.22);
-    vec3 coreColor = mix(vec3(1.0, 0.72, 0.38), vec3(1.0, 0.96, 0.83),
-      1.0 - smoothstep(0.0, 0.19, aGalaxyData.x));
+    vec3 armColor = aGalaxyData.z < 0.5 ? vec3(0.34, 0.76, 1.0)
+      : aGalaxyData.z < 1.5 ? vec3(0.55, 0.5, 0.95)
+        : aGalaxyData.z < 2.5 ? vec3(0.81, 0.42, 0.74) : vec3(0.48, 0.84, 0.97);
+    float starCluster = smoothstep(0.68, 0.98, aSeed) * aGalaxyData.w;
+    armColor = mix(armColor, vec3(0.86, 0.95, 1.0), starCluster * 0.52);
+    vec3 coreColor = mix(vec3(1.0, 0.65, 0.32), vec3(1.0, 0.98, 0.86),
+      1.0 - smoothstep(0.0, 0.22, aGalaxyData.x));
     vec3 galaxyColor = aGalaxyData.y < 0.5 ? coreColor
-      : aGalaxyData.y < 1.5 ? mix(coreColor, armColor, smoothstep(0.08, 0.3, aGalaxyData.x))
-        : mix(vec3(0.48, 0.57, 0.78), armColor, 0.36);
+      : aGalaxyData.y < 1.5 ? mix(coreColor, armColor, smoothstep(0.08, 0.34, aGalaxyData.x))
+        : aGalaxyData.y < 2.5 ? mix(vec3(0.38, 0.49, 0.7), armColor, 0.28)
+          : mix(armColor, vec3(0.67, 0.53, 0.86), 0.28);
     float cyanBias = clamp(0.18 + 0.24 * sin(aNebulaPosition.x * 0.26 + aNebulaPosition.y * 0.43)
       + 0.2 * smoothstep(1.5, 6.5, abs(aNebulaPosition.y)), 0.0, 0.68);
     float brightKnot = smoothstep(0.72, 0.98, aSeed) * mix(0.45, 1.0, nebulaDepth);
@@ -338,9 +499,11 @@ const particleVertexShader = `
     float dustOpacity = mix(0.48, 0.78, aSeed) * mix(0.52, 1.0, edgeWeight);
     dustOpacity *= clamp(depthScale, 0.74, 1.0);
     float nebulaOpacity = mix(0.4, 0.73, aSeed) * mix(0.7, 1.08, nebulaDepth) + brightKnot * 0.18;
-    float galaxyOpacity = aGalaxyData.y < 0.5 ? 0.74
-      : aGalaxyData.y < 1.5 ? 0.76 * aGalaxyData.w : 0.22;
-    galaxyOpacity *= mix(1.08, 0.78, aGalaxyData.x);
+    float galaxyOpacity = aGalaxyData.y < 0.5
+      ? mix(0.16, 0.4, 1.0 - smoothstep(0.04, 0.22, aGalaxyData.x))
+      : aGalaxyData.y < 1.5 ? (0.62 + starCluster * 0.32) * aGalaxyData.w
+        : aGalaxyData.y < 2.5 ? 0.11 : 0.16;
+    galaxyOpacity *= mix(1.08, 0.82, aGalaxyData.x);
     vOpacity = mix(galaxyOpacity, dustOpacity, settle);
     vOpacity = mix(vOpacity, nebulaOpacity, nebulaArrival);
     // The rear arc disappears behind the projected disc. The front arc stays
@@ -351,8 +514,10 @@ const particleVertexShader = `
       ? mix(0.42, 0.9, smoothstep(-0.4, 0.4, planetLocal.z)) * (1.0 - behindDisc * 0.97)
       : mix(0.03, 0.92, smoothstep(-0.24, 0.48, planetLocal.z));
     vOpacity = mix(vOpacity, planetOpacity, planetBlend);
+    vOpacity *= smoothstep(2.0, 10.0, -viewPosition.z);
     vOpacity *= 1.0 + breathing * 0.055 * nebulaArrival * uMotionAmount * uMotionProfile.y;
-    vHaloStrength = 0.46;
+    vHaloStrength = mix(0.46, 0.78, (1.0 - settle)
+      * (1.0 - nebulaArrival) * (1.0 - step(2.5, aGalaxyData.y)));
     vHaloStrength = mix(vHaloStrength, 0.72, nebulaArrival);
     vHaloStrength = mix(vHaloStrength, 0.52, planetBlend);
   }
@@ -396,6 +561,7 @@ const ambientVertexShader = `
   uniform float uTime;
   uniform float uPixelRatio;
   uniform float uIntensity;
+  uniform float uTravelStrength;
   varying vec3 vColor;
   varying float vOpacity;
   varying float vHaloStrength;
@@ -403,22 +569,31 @@ const ambientVertexShader = `
   varying vec2 vTravelDirection;
 
   void main() {
-    // Each point occupies a real camera-space depth. Scrolling advances it
-    // toward the viewer; modulo wraps it without changing its identity.
-    float depth = 16.0 + mod(position.z * 86.0 - uTravel * 64.0 * (0.75 + aSeed * 0.4) + 86.0, 86.0);
+    // World positions are fixed along the entire flight corridor. The real
+    // camera passes them; no modulo reset or screen-space zoom is involved.
+    float startDepth = 18.0 + position.z * 205.0;
     vec2 drift = vec2(sin(uTime * 0.035 + aSeed * 17.0),
       cos(uTime * 0.028 + aSeed * 23.0)) * 0.006;
-    vec2 ndc = position.xy + drift;
-    vec3 viewPosition = vec3(ndc * depth / vec2(projectionMatrix[0][0], projectionMatrix[1][1]), -depth);
-    gl_Position = projectionMatrix * vec4(viewPosition, 1.0);
+    vec2 wideField = (position.xy + drift) * startDepth
+      / vec2(projectionMatrix[0][0], projectionMatrix[1][1]);
+    // A fixed corridor cohort supplies near-camera pass-bys at every depth;
+    // the wide cohort still fills the opening frame and distant background.
+    vec2 corridor = position.xy * vec2(18.0, 12.0);
+    vec2 worldXY = mix(wideField, corridor, 1.0 - step(0.52, aSeed));
+    vec4 viewPosition = modelViewMatrix * vec4(worldXY, 38.0 - startDepth, 1.0);
+    float depth = -viewPosition.z;
+    gl_Position = projectionMatrix * viewPosition;
     float proximity = clamp(38.0 / depth, 0.38, 1.8);
-    float travelPhase = smoothstep(0.02, 0.22, uTravel) * (1.0 - smoothstep(0.78, 1.0, uTravel));
-    vStreak = travelPhase * smoothstep(0.8, 1.7, proximity) * 0.65;
+    float travelPhase = sin(uTravel * 3.14159265);
+    vStreak = travelPhase * smoothstep(0.8, 1.7, proximity) * 0.65 * uTravelStrength;
     vTravelDirection = normalize(vec2(position.x * projectionMatrix[1][1] / projectionMatrix[0][0], position.y) + vec2(0.0001));
-    gl_PointSize = clamp(aPointSize * proximity * uPixelRatio * (1.0 + vStreak * 1.4), 1.0, 9.0);
+    gl_PointSize = clamp(aPointSize * proximity * uPixelRatio * (1.0 + vStreak * 1.4), 1.0, 10.0);
     vColor = mix(vec3(0.64, 0.83, 1.0), vec3(0.95, 0.98, 1.0), aSeed);
     vColor = mix(vColor, vec3(0.72, 0.63, 0.96), smoothstep(0.78, 1.0, aSeed) * 0.55);
-    vOpacity = uIntensity * (0.32 + aSeed * 0.55) * (0.85 + 0.15 * sin(uTime * (0.3 + aSeed) + aSeed * 30.0));
+    vColor = mix(vColor, vec3(1.0, 0.78, 0.55), (1.0 - step(0.07, aSeed)) * 0.45);
+    float depthFade = smoothstep(2.0, 12.0, depth) * (1.0 - smoothstep(210.0, 270.0, depth));
+    vOpacity = uIntensity * depthFade * (0.42 + aSeed * 0.5)
+      * (0.85 + 0.15 * sin(uTime * (0.3 + aSeed) + aSeed * 30.0));
     vHaloStrength = 0.42;
   }
 `;
@@ -438,6 +613,62 @@ const ambientFragmentShader = `
     float core = exp(-radius * radius * 100.0);
     gl_FragColor = vec4(vColor * (0.9 + core * 0.75),
       min(1.0, (halo * vHaloStrength + core * 0.55) * vOpacity));
+  }
+`;
+
+function createTravelHazeAttributes(count) {
+  const random = createRandom(0x76a42b9d);
+  const positions = new Float32Array(count * 3);
+  const sizes = new Float32Array(count);
+  const tones = new Float32Array(count);
+  for (let index = 0; index < count; index += 1) {
+    const offset = index * 3;
+    positions[offset] = Math.max(-19, Math.min(19, randomNormal(random) * 8));
+    positions[offset + 1] = Math.max(-12, Math.min(12, randomNormal(random) * 5));
+    positions[offset + 2] = 10 - random() * 165;
+    sizes[index] = 75 + random() * 105;
+    tones[index] = random();
+  }
+  return { positions, sizes, tones };
+}
+
+const travelHazeVertexShader = `
+  attribute float aSize;
+  attribute float aTone;
+  uniform float uIntensity;
+  uniform float uPixelRatio;
+  uniform float uMaxSize;
+  varying vec3 vColor;
+  varying float vOpacity;
+  varying float vShape;
+  void main() {
+    vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+    float depth = -viewPosition.z;
+    gl_Position = projectionMatrix * viewPosition;
+    gl_PointSize = min(uMaxSize, aSize * uPixelRatio * 42.0 / max(12.0, depth));
+    vColor = aTone < 0.18 ? vec3(0.93, 0.63, 0.43)
+      : aTone < 0.48 ? vec3(0.24, 0.7, 0.94)
+        : aTone < 0.76 ? vec3(0.48, 0.33, 0.85) : vec3(0.79, 0.32, 0.67);
+    vShape = aTone * 6.283185;
+    vOpacity = uIntensity * smoothstep(4.0, 18.0, depth)
+      * (1.0 - smoothstep(145.0, 215.0, depth));
+  }
+`;
+
+const travelHazeFragmentShader = `
+  varying vec3 vColor;
+  varying float vOpacity;
+  varying float vShape;
+  void main() {
+    vec2 point = gl_PointCoord - vec2(0.5);
+    float angle = atan(point.y, point.x);
+    float warp = 1.0 + 0.2 * sin(angle * 3.0 + vShape)
+      + 0.13 * sin(angle * 5.0 - vShape * 1.7);
+    vec2 stretched = vec2(point.x * 0.82, point.y * 1.22);
+    float radius = length(stretched) / warp;
+    float density = exp(-radius * radius * 15.0);
+    density *= 0.75 + 0.25 * sin(point.x * 17.0 + point.y * 11.0 + vShape);
+    gl_FragColor = vec4(vColor, density * vOpacity * 0.085);
   }
 `;
 
@@ -537,8 +768,10 @@ function createSupernovaScene(canvas, onStatus) {
   let lastRenderTime = performance.now();
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 140);
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 260);
   camera.position.set(0, 0, 38);
+  const cameraLookTarget = new THREE.Vector3();
+  const cameraLookOffset = { x: 0, y: 0 };
 
   const particleCount = particleBudget(window.innerWidth, navigator.hardwareConcurrency || 8);
 
@@ -584,6 +817,45 @@ function createSupernovaScene(canvas, onStatus) {
   particles.renderOrder = 2;
   scene.add(particles);
 
+  const ribbonData = createGalaxyRibbonAttributes(window.innerWidth < 768 ? 40 : 64,
+    window.innerWidth < 768 ? 2 : 3);
+  const ribbonGeometry = new THREE.BufferGeometry();
+  ribbonGeometry.setAttribute("position", new THREE.Float32BufferAttribute(ribbonData.positions, 3));
+  ribbonGeometry.setAttribute("aRibbon", new THREE.Float32BufferAttribute(ribbonData.coordinates, 2));
+  ribbonGeometry.setAttribute("aArm", new THREE.Float32BufferAttribute(ribbonData.armIds, 1));
+  const galaxyUniforms = {
+    uGalaxyScale: particleUniforms.uGalaxyScale,
+    uVisibility: { value: 1 },
+    uTime: { value: 0 },
+  };
+  const ribbonMaterial = new THREE.ShaderMaterial({
+    uniforms: galaxyUniforms,
+    vertexShader: galaxyRibbonVertexShader,
+    fragmentShader: galaxyRibbonFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    side: THREE.DoubleSide,
+  });
+  const ribbons = new THREE.Mesh(ribbonGeometry, ribbonMaterial);
+  ribbons.frustumCulled = false;
+  ribbons.renderOrder = 1;
+  scene.add(ribbons);
+
+  const coreGeometry = new THREE.SphereGeometry(2.6, 24, 16);
+  const coreMaterial = new THREE.ShaderMaterial({
+    uniforms: galaxyUniforms,
+    vertexShader: galaxyCoreVertexShader,
+    fragmentShader: galaxyCoreFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+  });
+  const galacticBulge = new THREE.Mesh(coreGeometry, coreMaterial);
+  galacticBulge.frustumCulled = false;
+  galacticBulge.renderOrder = 1;
+  scene.add(galacticBulge);
+
   const ambientCount = ambientStarBudget(window.innerWidth, navigator.hardwareConcurrency || 8);
   const ambientData = createAmbientAttributes(ambientCount);
   const ambientGeometry = new THREE.BufferGeometry();
@@ -595,6 +867,7 @@ function createSupernovaScene(canvas, onStatus) {
     uTime: { value: 0 },
     uPixelRatio: { value: 1 },
     uIntensity: { value: 1 },
+    uTravelStrength: { value: 1 },
   };
   const ambientMaterial = new THREE.ShaderMaterial({
     uniforms: ambientUniforms,
@@ -609,6 +882,30 @@ function createSupernovaScene(canvas, onStatus) {
   ambientStars.frustumCulled = false;
   ambientStars.renderOrder = -1;
   scene.add(ambientStars);
+
+  const hazeData = createTravelHazeAttributes(window.innerWidth < 768 ? 22 : 42);
+  const hazeGeometry = new THREE.BufferGeometry();
+  hazeGeometry.setAttribute("position", new THREE.BufferAttribute(hazeData.positions, 3));
+  hazeGeometry.setAttribute("aSize", new THREE.BufferAttribute(hazeData.sizes, 1));
+  hazeGeometry.setAttribute("aTone", new THREE.BufferAttribute(hazeData.tones, 1));
+  const hazeUniforms = {
+    uIntensity: { value: 0 },
+    uPixelRatio: { value: 1 },
+    uMaxSize: { value: 180 },
+  };
+  const hazeMaterial = new THREE.ShaderMaterial({
+    uniforms: hazeUniforms,
+    vertexShader: travelHazeVertexShader,
+    fragmentShader: travelHazeFragmentShader,
+    transparent: true,
+    depthWrite: false,
+    depthTest: false,
+    blending: THREE.AdditiveBlending,
+  });
+  const travelHaze = new THREE.Points(hazeGeometry, hazeMaterial);
+  travelHaze.frustumCulled = false;
+  travelHaze.renderOrder = 0;
+  scene.add(travelHaze);
 
   const nebulaUniforms = {
     uVisibility: { value: 0 },
@@ -626,15 +923,21 @@ function createSupernovaScene(canvas, onStatus) {
     blending: THREE.AdditiveBlending,
   });
   const nebula = new THREE.Mesh(nebulaGeometry, nebulaMaterial);
-  nebula.position.z = -2.2;
+  nebula.position.z = -135.2;
   nebula.renderOrder = 0;
   scene.add(nebula);
 
   function disposeSceneResources() {
     geometry.dispose();
     particleMaterial.dispose();
+    ribbonGeometry.dispose();
+    ribbonMaterial.dispose();
+    coreGeometry.dispose();
+    coreMaterial.dispose();
     ambientGeometry.dispose();
     ambientMaterial.dispose();
+    hazeGeometry.dispose();
+    hazeMaterial.dispose();
     nebulaGeometry.dispose();
     nebulaMaterial.dispose();
   }
@@ -672,8 +975,11 @@ function createSupernovaScene(canvas, onStatus) {
     particleUniforms.uProgress.value = progress;
     particleUniforms.uInteraction.value = reducedMotion ? 0 : particleInteraction(progress);
     particleUniforms.uMotionAmount.value = autonomousMotion(progress, reducedMotion);
+    galaxyUniforms.uVisibility.value = 1 - smoothPhase(0.27, 0.53, progress);
     ambientUniforms.uTravel.value = reducedMotion ? 0 : travelAmount(progress);
     ambientUniforms.uIntensity.value = 1 - smoothPhase(0.62, 0.88, progress) * 0.62;
+    hazeUniforms.uIntensity.value = reducedMotion ? 0
+      : smoothPhase(0.16, 0.28, progress) * (1 - smoothPhase(0.61, 0.73, progress));
     nebulaUniforms.uVisibility.value = formationHaze(progress);
   }
 
@@ -687,8 +993,19 @@ function createSupernovaScene(canvas, onStatus) {
       particleUniforms.uPointerVelocity.value.set(pointer.value.velocityX, pointer.value.velocityY);
     }
     updateUniforms();
+    cameraJourney(particleUniforms.uProgress.value, camera.position);
+    const armApproach = approachEnvelope(particleUniforms.uProgress.value);
+    const galaxyWidth = particles.scale.x * particleUniforms.uGalaxyScale.value.x / 2.05;
+    const lateralScale = 1 + armApproach * (galaxyWidth - 1);
+    camera.position.x *= particleUniforms.uMotionProfile.value.x * lateralScale;
+    camera.position.y *= particleUniforms.uMotionProfile.value.x;
+    cameraAim(particleUniforms.uProgress.value, cameraLookOffset);
+    cameraLookTarget.set(camera.position.x + cameraLookOffset.x * particleUniforms.uMotionProfile.value.x * lateralScale,
+      camera.position.y + cameraLookOffset.y * particleUniforms.uMotionProfile.value.x, camera.position.z - 40);
+    camera.lookAt(cameraLookTarget);
     const time = reducedMotion ? 0 : animationClock.sample(now);
     particleUniforms.uMotionTime.value = time;
+    galaxyUniforms.uTime.value = time * particleUniforms.uMotionProfile.value.x;
     ambientUniforms.uTime.value = time;
     nebulaUniforms.uTime.value = time;
 
@@ -746,9 +1063,9 @@ function createSupernovaScene(canvas, onStatus) {
 
   function updateFraming() {
     // Place destinations and haze in their final composition from the outset.
-    // The camera and ambient stars stay fixed; only destinations are framed.
+    // Contact haze is framed for the camera's final position at z = -95.
     particleUniforms.uNebulaCenter.value.set(framingX * 2, -framingY * 2);
-    const halfHeight = (camera.position.z - nebula.position.z) * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
+    const halfHeight = 40.2 * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5));
     nebula.position.x = framingX * 2 * halfHeight * viewportWidth / viewportHeight;
     nebula.position.y = -framingY * 2 * halfHeight;
   }
@@ -763,11 +1080,12 @@ function createSupernovaScene(canvas, onStatus) {
     particleUniforms.uViewportAspect.value = aspect;
     particleUniforms.uPlanetCenter.value.set(width < 768 ? 0 : 0.45, width < 768 ? -0.28 : -0.04);
     particleUniforms.uPlanetRadius.value = width < 768 ? 3.4 : width <= 991 ? 4.2 : 5.4;
-    particleUniforms.uGalaxyScale.value.set(width < 768 ? 1.1 : width <= 991 ? 1.25 : 1.5,
-      width < 768 ? 0.85 : 1.1);
+    particleUniforms.uGalaxyScale.value.set(width < 768 ? 1.35 : width <= 991 ? 1.55 : 2.05,
+      width < 768 ? 1.0 : 1.25);
     pointer?.clear();
     const isSmallScreen = width < 768;
     const gentleMotion = width <= 991 || coarsePointer?.matches;
+    ambientUniforms.uTravelStrength.value = gentleMotion ? 0.58 : 1;
     particleUniforms.uMotionProfile.value.set(gentleMotion ? 0.65 : 1, gentleMotion ? 0.55 : 1);
     const pixelRatio = Math.min(window.devicePixelRatio || 1, pixelRatioCap(width));
 
@@ -775,12 +1093,16 @@ function createSupernovaScene(canvas, onStatus) {
     camera.updateProjectionMatrix();
     updateFraming();
     particles.scale.x = Math.min(1, Math.max(0.3, aspect * 0.75));
+    ribbons.scale.x = particles.scale.x;
+    galacticBulge.scale.x = particles.scale.x;
     const cloudWidth = isSmallScreen ? 1.18 : 1.32;
     particleUniforms.uNebulaScale.value.set(cloudWidth, 1.28, 1.15);
     nebula.scale.set(particles.scale.x * cloudWidth, 1.28, 1);
     nebulaUniforms.uFineDetail.value = width <= 991 ? 0 : 1;
     particleUniforms.uPixelRatio.value = pixelRatio;
     ambientUniforms.uPixelRatio.value = pixelRatio;
+    hazeUniforms.uPixelRatio.value = pixelRatio;
+    hazeUniforms.uMaxSize.value = gentleMotion ? 110 : 180;
     renderer.setPixelRatio(pixelRatio);
     renderer.setSize(width, height, false);
     scheduleRender();

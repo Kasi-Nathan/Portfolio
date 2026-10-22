@@ -1,7 +1,7 @@
-.beyond-stars { position: relative; padding: clamp(90px, 11vw, 160px) 0 110px; color: #eef3f8; border-top: 1px solid rgba(157, 187, 212, .16); isolation: isolate; }
+.beyond-stars { position: relative; padding: clamp(64px, 8vw, 110px) 0 70px; color: #eef3f8; border-top: 1px solid rgba(157, 187, 212, .16); isolation: isolate; }
 .beyond-stars::before { position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at 72% 24%, rgba(89, 63, 144, .12), transparent 42%), radial-gradient(1px 1px at 12% 18%, #bdd8ea88 80%, transparent), radial-gradient(1px 1px at 87% 57%, #bdd8ea66 80%, transparent), radial-gradient(1px 1px at 64% 86%, #bdd8ea77 80%, transparent); content: ""; }
 .beyond-stars-eyebrow, .beyond-stars-entry-index { color: #92cddd; font-family: var(--space-mono, monospace); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; }
-.beyond-stars-heading { max-width: 950px; margin-bottom: clamp(70px, 9vw, 135px); }
+.beyond-stars-heading { max-width: 950px; margin-bottom: clamp(40px, 5vw, 70px); }
 .beyond-stars-heading h2 { margin: 1rem 0 1.2rem; font-size: clamp(4rem, 10vw, 9.5rem); font-weight: 500; letter-spacing: -.08em; line-height: .93; text-wrap: balance; }
 .beyond-stars-heading h2 em { color: #a9b9e3; font-style: normal; }
 .beyond-stars-heading > p:last-child { margin: 0; color: #b7c4d2; font-size: clamp(1rem, 1.7vw, 1.3rem); line-height: 1.7; }
@@ -12,16 +12,16 @@
 .beyond-stars-sheet { position: absolute; inset: 6px; z-index: 0; border: 1px solid rgba(159, 174, 210, .21); background: #131827; }
 .beyond-stars-sheet--one { transform: translate(14px, -15px) rotate(2.8deg); }
 .beyond-stars-sheet--two { transform: translate(-11px, 11px) rotate(-2.4deg); background: #111522; }
-.beyond-stars-portrait figcaption { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 1rem; padding: 14px 4px 3px; color: #a9b9c9; font-family: var(--space-mono, monospace); font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; }
+.beyond-stars-portrait figcaption { position: relative; z-index: 1; display: flex; justify-content: space-between; gap: 1rem; padding: 14px 4px 3px; color: #c1d0df; font-family: var(--space-mono, monospace); font-size: .8rem; letter-spacing: .05em; text-transform: uppercase; }
 .beyond-stars-timeline { position: relative; padding-left: 36px; border-left: 1px solid rgba(147, 191, 218, .24); }
-.beyond-stars-entry { position: relative; min-height: 58vh; padding: 6px 0 clamp(70px, 10vh, 120px); }
+.beyond-stars-entry { position: relative; padding: 6px 0 clamp(38px, 5vh, 60px); }
 .beyond-stars-entry::before { position: absolute; top: 8px; left: -42px; width: 11px; height: 11px; border: 2px solid #8ccee0; border-radius: 50%; background: #101b2a; box-shadow: 0 0 0 6px rgba(120, 189, 214, .07); content: ""; }
 .beyond-stars-entry h3 { max-width: 13ch; margin: 1.1rem 0 1.2rem; font-size: clamp(2.1rem, 3.5vw, 3.8rem); font-weight: 500; letter-spacing: -.05em; line-height: 1.12; text-wrap: balance; }
 .beyond-stars-entry p { max-width: 52ch; margin: 0; color: #aebdca; font-size: clamp(1rem, 1.2vw, 1.14rem); line-height: 1.85; }
 .beyond-stars-actions { display: flex; flex-wrap: wrap; gap: 1.5rem; padding: 0 0 35px; }
 .beyond-stars-actions a { color: #d8eaf3; font-size: .9rem; text-decoration: none; border-bottom: 1px solid #7cbaca; padding-bottom: 6px; }
 .beyond-stars-actions a:hover { color: #9ed6e6; }
-.beyond-stars-instruments { padding-top: clamp(90px, 10vw, 145px); border-top: 1px solid rgba(157, 187, 212, .16); }
+.beyond-stars-instruments { padding-top: clamp(48px, 6vw, 80px); border-top: 1px solid rgba(157, 187, 212, .16); }
 .beyond-stars-instruments-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 2rem; margin-bottom: 3.5rem; }
 .beyond-stars-instruments-heading .beyond-stars-eyebrow { width: 100%; }
 .beyond-stars-instruments h3 { margin: .4rem 0; font-size: clamp(3.2rem, 7vw, 6.5rem); font-weight: 500; letter-spacing: -.07em; }
@@ -30,31 +30,31 @@
 .beyond-stars-group { min-width: 0; padding: 1.5rem 1.2rem 1.7rem; border-top: 1px solid rgba(140, 205, 224, .48); background: linear-gradient(180deg, rgba(23, 35, 54, .56), rgba(8, 12, 21, .16)); }
 .beyond-stars-group h4 { margin: 0 0 1.4rem; color: #dcebf3; font-family: var(--space-mono, monospace); font-size: .72rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
 .beyond-stars-group ul { display: grid; gap: .72rem; margin: 0; padding: 0; list-style: none; }
-.beyond-stars-group li { color: #aab9c8; font-size: .88rem; line-height: 1.4; }
+.beyond-stars-group li { color: #c1cfdd; font-size: 1rem; line-height: 1.4; }
 .beyond-stars--animate [data-reveal] { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s ease; }
 .beyond-stars--animate [data-reveal].is-visible { opacity: 1; transform: none; }
 @media (max-width: 991px) {
   .beyond-stars-story { gap: 45px; }
   .beyond-stars-groups { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .beyond-stars-entry { min-height: 50vh; }
+  .beyond-stars-entry { min-height: 0; }
 }
 @media (max-width: 767px) {
-  .beyond-stars { padding: 85px 0 75px; }
+  .beyond-stars { padding: 60px 0 55px; }
   .beyond-stars-heading { margin-bottom: 60px; }
   .beyond-stars-heading h2 { font-size: clamp(3.4rem, 14vw, 5.7rem); }
   .beyond-stars-story { display: block; }
-  .beyond-stars-portrait-column { margin: 0 auto 75px; max-width: 420px; }
+  .beyond-stars-portrait-column { margin: 0 auto 48px; max-width: 420px; }
   .beyond-stars-portrait { position: relative; top: auto; margin-bottom: 0; }
   .beyond-stars-timeline { margin-left: 6px; padding-left: 29px; }
-  .beyond-stars-entry { min-height: 0; padding-bottom: 80px; }
+  .beyond-stars-entry { min-height: 0; padding-bottom: 44px; }
   .beyond-stars-entry::before { left: -35px; }
   .beyond-stars-entry h3 { font-size: clamp(2rem, 8vw, 3rem); }
-  .beyond-stars-instruments { padding-top: 80px; }
+  .beyond-stars-instruments { padding-top: 48px; }
   .beyond-stars-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 480px) {
   .beyond-stars-groups { grid-template-columns: 1fr; }
-  .beyond-stars-portrait figcaption { font-size: .53rem; }
+  .beyond-stars-portrait figcaption { font-size: .75rem; }
 }
 @media (prefers-reduced-motion: reduce) {
   .beyond-stars--animate [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
